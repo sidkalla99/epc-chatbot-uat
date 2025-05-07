@@ -185,3 +185,27 @@ input:checked + .slider:before {
 .response-table th {
   font-weight: bold;
 }
+
+.download-btn {
+  margin-top: 8px;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.typing-indicator {
+  display: flex;
+  align-items: center;
+  font-style: italic;
+  padding: 8px 0;
+}
+
+.dot-flash::after {
+  content: '⏳ Analyzing';
+  animation: blink 1.4s infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
