@@ -11,16 +11,16 @@ function App() {
   const sendMessage = async () => {
     if (!userInput.trim()) return;
 
-    const newMessages = [...messages, { sender: 'user', text: userInput }];
+    const newMessages = [...messages, { sender: 'user', text: userInput}];
     setMessages(newMessages);
-
+    console.log("User Query: ", userInput);
     try {
       const response = await fetch('https://uydyp6dip1.execute-api.eu-central-1.amazonaws.com/prod/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ question: userInput }),
       });
-      console.log("User Query: ", response);
+      console.log("Response: ", response);
       const data = await response.json();
 
       const answer = Array.isArray(data.body)
