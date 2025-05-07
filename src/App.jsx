@@ -20,13 +20,14 @@ function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ question: userInput }),
       });
-
+      console.log("User Query: ", response);
       const data = await response.json();
 
       const answer = Array.isArray(data.body)
         ? data.body.map((row, i) => `${i + 1}. ${Object.values(row).join(' | ')}`).join('\n')
         : data.body;
-
+      console.log("Body: ",body);
+      console.log("Answer: ", answer);
       setMessages([...newMessages, { sender: 'Assistant', text: answer || 'No response received.' }]);
     } catch (err) {
       console.error(err);
