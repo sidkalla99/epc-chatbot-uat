@@ -201,7 +201,7 @@ input:checked + .slider:before {
 }
 
 .dot-flash::after {
-  content: 'Analyzing Data';
+  content: '  Analyzing Data  ';
   animation: blink 1.4s infinite;
 }
 
