@@ -183,6 +183,5 @@ input:checked + .slider:before {
 }
 
 .response-table th {
-  background-color: #f3f3f3;
   font-weight: bold;
 }
