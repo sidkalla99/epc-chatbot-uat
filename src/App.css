@@ -167,3 +167,22 @@ input:checked + .slider {
 input:checked + .slider:before {
   transform: translateX(22px);
 }
+
+.response-table {
+  width: 100%;
+  margin-top: 10px;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.response-table th,
+.response-table td {
+  border: 1px solid #ccc;
+  padding: 6px 10px;
+  text-align: left;
+}
+
+.response-table th {
+  background-color: #f3f3f3;
+  font-weight: bold;
+}
