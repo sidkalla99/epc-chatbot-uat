@@ -10,30 +10,36 @@ function App() {
 
   const sendMessage = async () => {
     if (!userInput.trim()) return;
-
-    const newMessages = [...messages, { sender: 'user', text: userInput}];
+  
+    const newMessages = [...messages, { sender: 'user', text: userInput }];
     setMessages(newMessages);
-    console.log("User Query: ", userInput);
+    console.log("🟡 User Query: ", userInput);
+  
     try {
       const response = await fetch('https://uydyp6dip1.execute-api.eu-central-1.amazonaws.com/prod/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ question: userInput }),
       });
-      console.log("Response: ", response);
+  
+      console.log("🟢 Response status:", response.status);
+  
       const data = await response.json();
-
+      console.log("🔵 Parsed response JSON:", data);
+      console.log("Data.body: ", data.body);
+  
       const answer = Array.isArray(data.body)
         ? data.body.map((row, i) => `${i + 1}. ${Object.values(row).join(' | ')}`).join('\n')
         : data.body;
-      console.log("Body: ",body);
-      console.log("Answer: ", answer);
+  
+      console.log("✅ Final Answer to display:", answer);
+  
       setMessages([...newMessages, { sender: 'Assistant', text: answer || 'No response received.' }]);
     } catch (err) {
-      console.error(err);
+      console.error("❌ Fetch error:", err);
       setMessages([...newMessages, { sender: 'Assistant', text: 'Error fetching response.' }]);
     }
-
+  
     setUserInput('');
   };
 
