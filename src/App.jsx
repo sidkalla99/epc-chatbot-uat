@@ -11,7 +11,7 @@ function App() {
 
   const sendMessage = async () => {
     if (!userInput.trim()) return;
-
+    console.log("📨 Question asked:", userInput);
     const newMessages = [...messages, { sender: 'user', text: userInput }];
     setUserInput(''); // ✅ Clear input right away
     //setMessages([...newMessages, { sender: 'Assistant', text: 'Typing...' }]);
@@ -26,6 +26,7 @@ function App() {
       });
 
       const data = await response.json();
+      console.log("✅ API response:", data);
       let updatedMessages = newMessages;
 
       if (Array.isArray(data)) {
