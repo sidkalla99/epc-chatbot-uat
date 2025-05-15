@@ -3,7 +3,7 @@ import './App.css';
 
 function App() {
   const [messages, setMessages] = useState([
-    { sender: 'Assistant', text: 'Hello! How can I assist you with your EPC projects?' }
+    { sender: 'Assistant', text: 'Hello! How can I assist you with your projects?' }
   ]);
   const [userInput, setUserInput] = useState('');
   const [darkMode, setDarkMode] = useState(true);
