@@ -9,14 +9,15 @@ function App() {
   const [darkMode, setDarkMode] = useState(true);
   const [loading, setLoading] = useState(false);
 
-  const typeText = (text, callback) => {
+  const typeText = (text, onUpdate, onComplete) => {
     let i = 0;
     const interval = setInterval(() => {
       if (i < text.length) {
-        callback(prev => prev + text[i]);
+        onUpdate(prev => prev + text[i]);
         i++;
       } else {
         clearInterval(interval);
+        if (onComplete) onComplete();
       }
     }, 20);
   };
@@ -27,9 +28,8 @@ function App() {
       return;
     }
 
-    console.log("📤 Sending user message:", userInput);
-    const newMessages = [...messages, { sender: 'user', text: userInput }];
-    setMessages(newMessages);
+    const userMessage = { sender: 'user', text: userInput };
+    setMessages(prev => [...prev, userMessage]);
     setUserInput('');
     setLoading(true);
 
@@ -51,35 +51,36 @@ function App() {
       }
 
       const data = await response.json();
-      console.log("✅ Parsed response JSON:", data);
-
       const answer = data.response || 'No response received.';
+      console.log("✅ Parsed response JSON:", data);
       console.log("📩 Answer to type out:", answer);
 
+      let typedAnswer = '';
       setMessages(prev => [...prev, { sender: 'Assistant', text: '' }]);
 
-      let currentText = '';
-      typeText(answer, (typedChar) => {
-        currentText = typedChar;
-        setMessages(prev => {
-          const updated = [...prev];
-          const lastMessage = updated[updated.length - 1];
-          if (lastMessage.sender === 'Assistant') {
-            updated[updated.length - 1] = {
-              ...lastMessage,
-              text: currentText
-            };
-          }
-          return updated;
-        });
-      });
+      typeText(answer,
+        (updater) => {
+          typedAnswer = updater;
+          setMessages(prev => {
+            const updated = [...prev];
+            const last = updated[updated.length - 1];
+            if (last.sender === 'Assistant') {
+              updated[updated.length - 1] = {
+                ...last,
+                text: typedAnswer
+              };
+            }
+            return updated;
+          });
+        },
+        () => setLoading(false)
+      );
 
     } catch (err) {
       console.error("🔥 Fetch or parse error:", err);
       setMessages(prev => [...prev, { sender: 'Assistant', text: 'Error fetching response.' }]);
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   const handleKeyDown = (e) => {
@@ -120,7 +121,7 @@ function App() {
             value={userInput}
             onChange={(e) => setUserInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Type your query here..."
+            placeholder="Type your query here"
           />
           <button onClick={sendMessage}>Send</button>
         </div>
