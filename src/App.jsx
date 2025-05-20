@@ -22,32 +22,54 @@ function App() {
   };
 
   const sendMessage = async () => {
-    if (!userInput.trim()) return;
+    if (!userInput.trim()) {
+      console.log("⛔ Empty input — skipping request");
+      return;
+    }
+
+    console.log("📤 Sending user message:", userInput);
     const newMessages = [...messages, { sender: 'user', text: userInput }];
     setMessages(newMessages);
     setUserInput('');
     setLoading(true);
 
     try {
-      const response = await fetch('https://uydyp6dip1.execute-api.eu-central-1.amazonaws.com/prod/chat', {
+      const apiUrl = 'https://uydyp6dip1.execute-api.eu-central-1.amazonaws.com/prod/chat';
+      console.log("🌐 Sending POST to:", apiUrl);
+
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ question: userInput }),
       });
 
+      console.log("📥 Raw fetch response:", response);
+
+      if (!response.ok) {
+        console.error("❌ API returned error status:", response.status);
+        throw new Error(`API error: ${response.status}`);
+      }
+
       const data = await response.json();
-      let assistantText = '';
+      console.log("✅ Parsed response JSON:", data);
+
+      const answer = data.response || 'No response received.';
+      console.log("📩 Answer to type out:", answer);
+
+      // Initialize empty assistant message
       setMessages(prev => [...prev, { sender: 'Assistant', text: '' }]);
 
-      typeText(data.response || 'No response received.', (typedText) => {
+      typeText(answer, (typedText) => {
         setMessages(prev => {
           const updated = [...prev];
           updated[updated.length - 1].text = typedText;
           return updated;
         });
       });
+
     } catch (err) {
-      setMessages([...newMessages, { sender: 'Assistant', text: 'Error fetching response.' }]);
+      console.error("🔥 Fetch or parse error:", err);
+      setMessages(prev => [...prev, { sender: 'Assistant', text: 'Error fetching response.' }]);
     }
 
     setLoading(false);
