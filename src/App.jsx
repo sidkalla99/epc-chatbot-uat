@@ -9,6 +9,7 @@ function App() {
   const [darkMode, setDarkMode] = useState(true);
   const [loading, setLoading] = useState(false);
 
+  // Typing animation: simulate word-by-word assistant typing
   const typeText = (text, callback) => {
     let i = 0;
     const interval = setInterval(() => {
@@ -56,13 +57,16 @@ function App() {
       const answer = data.response || 'No response received.';
       console.log("📩 Answer to type out:", answer);
 
-      // Initialize empty assistant message
+      // Add placeholder assistant message
       setMessages(prev => [...prev, { sender: 'Assistant', text: '' }]);
 
+      let finalAnswer = '';
       typeText(answer, (typedText) => {
+        finalAnswer = typedText;
+        console.log("⌨️ Typed so far:", finalAnswer);
         setMessages(prev => {
           const updated = [...prev];
-          updated[updated.length - 1].text = typedText;
+          updated[updated.length - 1] = { sender: 'Assistant', text: finalAnswer };
           return updated;
         });
       });
@@ -100,6 +104,7 @@ function App() {
               {msg.text}
             </div>
           ))}
+
           {loading && (
             <div className="message assistant">
               <span className="dot-flash"></span>
