@@ -1,4 +1,3 @@
-/* === APP CONTAINER THEME === */
 .app-container.dark {
   background-color: #121212;
   color: #f0f0f0;
@@ -12,33 +11,21 @@
 .app-container {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
   height: 100vh;
   width: 100vw;
 }
 
-/* === MAIN CHAT CONTAINER === */
 .chat-container {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  height: 100%;
   width: 100%;
-  max-width: 800px;
-  height: 90vh;
+  max-width: none;
   padding: 1rem;
   box-sizing: border-box;
 }
 
-.app-container.dark .chat-container {
-  background-color: #1a1a1a;
-}
-
-.app-container.light .chat-container {
-  background-color: #ffffff;
-}
-
-/* === HEADER === */
 .header {
   display: flex;
   justify-content: space-between;
@@ -51,7 +38,6 @@
   font-size: 2rem;
 }
 
-/* === CHAT BUBBLES === */
 .chat-box {
   display: flex;
   flex-direction: column;
@@ -60,14 +46,15 @@
   padding: 1rem;
   border-radius: 8px;
   margin-bottom: 1rem;
-  scroll-behavior: smooth;
   background-color: #222;
+  scroll-behavior: smooth;
 }
 
 .app-container.light .chat-box {
   background-color: #f8f8f8;
 }
 
+/* BUBBLE STYLES */
 .message {
   display: inline-block;
   max-width: 75%;
@@ -82,7 +69,7 @@
 
 .message.user {
   align-self: flex-end;
-  background-color: #1a73e8;
+  background-color: #5c6bc0;
   color: white;
   border-bottom-right-radius: 4px;
 }
@@ -103,7 +90,7 @@
   color: #111;
 }
 
-/* === INPUT AREA === */
+/* INPUT AREA */
 .input-box {
   display: flex;
 }
@@ -144,7 +131,7 @@
   background-color: #bbb;
 }
 
-/* === DARK MODE TOGGLE SWITCH === */
+/* TOGGLE SWITCH */
 .switch {
   position: relative;
   display: inline-block;
@@ -191,7 +178,7 @@ input:checked + .slider:before {
   transform: translateX(22px);
 }
 
-/* === TYPING INDICATOR === */
+/* LOADING INDICATOR */
 .typing-indicator {
   display: flex;
   align-items: center;
@@ -200,7 +187,7 @@ input:checked + .slider:before {
 }
 
 .dot-flash::after {
-  content: '  Analyzing Data  ';
+  content: '  Analyzing Data...';
   animation: blink 1.4s infinite;
 }
 
