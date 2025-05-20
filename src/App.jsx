@@ -8,8 +8,7 @@ function App() {
   const [userInput, setUserInput] = useState('');
   const [darkMode, setDarkMode] = useState(true);
   const [loading, setLoading] = useState(false);
-
-  const typingRef = useRef(''); // ✅ stores the typed text during animation
+  const typingRef = useRef('');
 
   const typeText = (text, onComplete) => {
     let i = 0;
@@ -36,19 +35,22 @@ function App() {
     }, 20);
   };
 
-  const sendMessage = async () => {
-    if (!userInput.trim()) return;
+  const sendMessage = async (customInput = null, isRetry = false) => {
+    const question = customInput || userInput;
+    if (!question.trim()) return;
 
-    const userMessage = { sender: 'user', text: userInput };
-    setMessages(prev => [...prev, userMessage]);
-    setUserInput('');
+    if (!isRetry) {
+      setMessages(prev => [...prev, { sender: 'user', text: question }]);
+      setUserInput('');
+    }
+
     setLoading(true);
 
     try {
       const response = await fetch('https://uydyp6dip1.execute-api.eu-central-1.amazonaws.com/prod/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: userInput }),
+        body: JSON.stringify({ question }),
       });
 
       console.log("📥 Raw fetch response:", response);
@@ -60,18 +62,32 @@ function App() {
       console.log("✅ Parsed response JSON:", data);
       console.log("📩 Answer to type out:", answer);
 
-      // Add empty assistant message
       setMessages(prev => [...prev, { sender: 'Assistant', text: '' }]);
 
-      // Start typing animation
       typeText(answer, () => {
         setLoading(false);
       });
 
     } catch (err) {
-      console.error("🔥 Fetch or parse error:", err);
-      setMessages(prev => [...prev, { sender: 'Assistant', text: 'Error fetching response.' }]);
-      setLoading(false);
+      console.error("🔥 API fetch error:", err);
+
+      if (!isRetry) {
+        // Retry assistant message
+        setMessages(prev => [...prev, {
+          sender: 'Assistant',
+          text: "Sorry, it's taking me more than expected time. Retrying..."
+        }]);
+
+        setTimeout(() => {
+          sendMessage(question, true);
+        }, 2000);
+      } else {
+        setMessages(prev => [...prev, {
+          sender: 'Assistant',
+          text: "⚠️ I'm still unable to fetch the response. Please try again shortly."
+        }]);
+        setLoading(false);
+      }
     }
   };
 
@@ -96,8 +112,19 @@ function App() {
 
         <div className="chat-box">
           {messages.map((msg, idx) => (
-            <div key={idx} className={`message ${msg.sender.toLowerCase()}`}>
-              {msg.text}
+            <div key={idx} className={`message-container ${msg.sender.toLowerCase()}`}>
+              <div className={`message ${msg.sender.toLowerCase()}`}>
+                {msg.text}
+                {msg.sender === 'Assistant' && (
+                  <span
+                    className="copy-icon"
+                    onClick={() => navigator.clipboard.writeText(msg.text)}
+                    title="Copy to clipboard"
+                  >
+                    ⧉
+                  </span>
+                )}
+              </div>
             </div>
           ))}
           {loading && (
@@ -115,7 +142,7 @@ function App() {
             onKeyDown={handleKeyDown}
             placeholder="Type your query here..."
           />
-          <button onClick={sendMessage}>Send</button>
+          <button onClick={() => sendMessage()}>Send</button>
         </div>
       </div>
     </div>
