@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import './App.css';
-// Uncomment the next line if you want markdown rendering
-// import ReactMarkdown from 'react-markdown';
 
 function App() {
   const [messages, setMessages] = useState([
@@ -11,12 +9,23 @@ function App() {
   const [darkMode, setDarkMode] = useState(true);
   const [loading, setLoading] = useState(false);
 
+  const typeText = (text, callback) => {
+    let i = 0;
+    const interval = setInterval(() => {
+      if (i < text.length) {
+        callback(prev => prev + text[i]);
+        i++;
+      } else {
+        clearInterval(interval);
+      }
+    }, 20);
+  };
+
   const sendMessage = async () => {
     if (!userInput.trim()) return;
-    console.log("📨 Question asked:", userInput);
     const newMessages = [...messages, { sender: 'user', text: userInput }];
-    setUserInput('');
     setMessages(newMessages);
+    setUserInput('');
     setLoading(true);
 
     try {
@@ -27,16 +36,17 @@ function App() {
       });
 
       const data = await response.json();
-      console.log("✅ API response:", data);
+      let assistantText = '';
+      setMessages(prev => [...prev, { sender: 'Assistant', text: '' }]);
 
-      const updatedMessages = [...newMessages, {
-        sender: 'Assistant',
-        text: data.response || 'No response received.'
-      }];
-
-      setMessages(updatedMessages);
+      typeText(data.response || 'No response received.', (typedText) => {
+        setMessages(prev => {
+          const updated = [...prev];
+          updated[updated.length - 1].text = typedText;
+          return updated;
+        });
+      });
     } catch (err) {
-      console.error("❌ Fetch error:", err);
       setMessages([...newMessages, { sender: 'Assistant', text: 'Error fetching response.' }]);
     }
 
@@ -64,19 +74,13 @@ function App() {
 
         <div className="chat-box">
           {messages.map((msg, idx) => (
-            <div key={idx}>
-              <strong>{msg.sender === 'user' ? 'You' : 'Assistant'}:</strong>
-              <p>
-                {/* If you want markdown rendering, replace the line below with: */}
-                {/* <ReactMarkdown>{msg.text}</ReactMarkdown> */}
-                {msg.text}
-              </p>
+            <div key={idx} className={`message ${msg.sender.toLowerCase()}`}>
+              {msg.text}
             </div>
           ))}
-
           {loading && (
-            <div className="typing-indicator">
-              <strong>Assistant:</strong> <span className="dot-flash"></span>
+            <div className="message assistant">
+              <span className="dot-flash"></span>
             </div>
           )}
         </div>
@@ -87,7 +91,7 @@ function App() {
             value={userInput}
             onChange={(e) => setUserInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Type your Query here"
+            placeholder="Type your query here..."
           />
           <button onClick={sendMessage}>Send</button>
         </div>
