@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import React, { useState, useRef } from 'react';
 import './App.css';
 
@@ -10,7 +9,6 @@ function App() {
   const [darkMode, setDarkMode] = useState(true);
   const [loading, setLoading] = useState(false);
 
-  const typeText = (text, onUpdate, onComplete) => {
   const typingRef = useRef(''); // ✅ stores the typed text during animation
 
   const typeText = (text, onComplete) => {
@@ -18,7 +16,6 @@ function App() {
     typingRef.current = '';
     const interval = setInterval(() => {
       if (i < text.length) {
-        onUpdate(prev => prev + text[i]);
         typingRef.current += text[i];
         setMessages(prev => {
           const updated = [...prev];
@@ -40,10 +37,6 @@ function App() {
   };
 
   const sendMessage = async () => {
-    if (!userInput.trim()) {
-      console.log("⛔ Empty input — skipping request");
-      return;
-    }
     if (!userInput.trim()) return;
 
     const userMessage = { sender: 'user', text: userInput };
@@ -52,10 +45,6 @@ function App() {
     setLoading(true);
 
     try {
-      const apiUrl = 'https://uydyp6dip1.execute-api.eu-central-1.amazonaws.com/prod/chat';
-      console.log("🌐 Sending POST to:", apiUrl);
-
-      const response = await fetch(apiUrl, {
       const response = await fetch('https://uydyp6dip1.execute-api.eu-central-1.amazonaws.com/prod/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -64,10 +53,6 @@ function App() {
 
       console.log("📥 Raw fetch response:", response);
 
-      if (!response.ok) {
-        console.error("❌ API returned error status:", response.status);
-        throw new Error(`API error: ${response.status}`);
-      }
       if (!response.ok) throw new Error(`API error: ${response.status}`);
 
       const data = await response.json();
@@ -75,27 +60,9 @@ function App() {
       console.log("✅ Parsed response JSON:", data);
       console.log("📩 Answer to type out:", answer);
 
-      let typedAnswer = '';
       // Add empty assistant message
       setMessages(prev => [...prev, { sender: 'Assistant', text: '' }]);
 
-      typeText(answer,
-        (updater) => {
-          typedAnswer = updater;
-          setMessages(prev => {
-            const updated = [...prev];
-            const last = updated[updated.length - 1];
-            if (last.sender === 'Assistant') {
-              updated[updated.length - 1] = {
-                ...last,
-                text: typedAnswer
-              };
-            }
-            return updated;
-          });
-        },
-        () => setLoading(false)
-      );
       // Start typing animation
       typeText(answer, () => {
         setLoading(false);
@@ -146,7 +113,6 @@ function App() {
             value={userInput}
             onChange={(e) => setUserInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Type your query here"
             placeholder="Type your query here..."
           />
           <button onClick={sendMessage}>Send</button>
