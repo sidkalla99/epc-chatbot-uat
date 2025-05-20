@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import './App.css';
+// Uncomment the next line if you want markdown rendering
+// import ReactMarkdown from 'react-markdown';
 
 function App() {
   const [messages, setMessages] = useState([
@@ -13,9 +15,8 @@ function App() {
     if (!userInput.trim()) return;
     console.log("📨 Question asked:", userInput);
     const newMessages = [...messages, { sender: 'user', text: userInput }];
-    setUserInput(''); // ✅ Clear input right away
-    //setMessages([...newMessages, { sender: 'Assistant', text: 'Typing...' }]);
-    setMessages(newMessages);  // just update messages with user input
+    setUserInput('');
+    setMessages(newMessages);
     setLoading(true);
 
     try {
@@ -27,20 +28,11 @@ function App() {
 
       const data = await response.json();
       console.log("✅ API response:", data);
-      let updatedMessages = newMessages;
 
-      if (Array.isArray(data)) {
-        updatedMessages = [...newMessages, {
-          sender: 'Assistant',
-          type: 'table',
-          data
-        }];
-      } else {
-        updatedMessages = [...newMessages, {
-          sender: 'Assistant',
-          text: data.body || 'No response received.'
-        }];
-      }
+      const updatedMessages = [...newMessages, {
+        sender: 'Assistant',
+        text: data.response || 'No response received.'
+      }];
 
       setMessages(updatedMessages);
     } catch (err) {
@@ -53,20 +45,6 @@ function App() {
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') sendMessage();
-  };
-
-  const downloadCSV = (data) => {
-    const headers = Object.keys(data[0]).join(',');
-    const rows = data.map(row => Object.values(row).join(','));
-    const csvContent = [headers, ...rows].join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'response.csv';
-    a.click();
-    URL.revokeObjectURL(url);
   };
 
   return (
@@ -88,42 +66,19 @@ function App() {
           {messages.map((msg, idx) => (
             <div key={idx}>
               <strong>{msg.sender === 'user' ? 'You' : 'Assistant'}:</strong>
-              {msg.type === 'table' ? (
-                <>
-                  <table className="response-table">
-                    <thead>
-                      <tr>
-                        {Object.keys(msg.data[0] || {}).map((key) => (
-                          <th key={key}>{key}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {msg.data.map((row, i) => (
-                        <tr key={i}>
-                          {Object.values(row).map((val, j) => (
-                            <td key={j}>{val}</td>
-                          ))}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                  <button onClick={() => downloadCSV(msg.data)} className="download-btn">
-                    ⬇️ Download CSV
-                  </button>
-                </>
-              ) : (
-                <p>{msg.text}</p>
-              )}
+              <p>
+                {/* If you want markdown rendering, replace the line below with: */}
+                {/* <ReactMarkdown>{msg.text}</ReactMarkdown> */}
+                {msg.text}
+              </p>
             </div>
           ))}
 
           {loading && (
-          <div className="typing-indicator">
-            <strong>Assistant:</strong> <span className="dot-flash"></span>
-          </div>
-        )}
-
+            <div className="typing-indicator">
+              <strong>Assistant:</strong> <span className="dot-flash"></span>
+            </div>
+          )}
         </div>
 
         <div className="input-box">
