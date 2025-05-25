@@ -201,6 +201,42 @@ input:checked + .slider:before {
   animation: blink 1.4s infinite;
 }
 
+/* === COPY BUTTON === */
+.message-wrapper {
+  position: relative;
+  padding-right: 36px;
+}
+
+.copy-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  color: #aaa;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.copy-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.app-container.light .copy-btn {
+  color: #666;
+}
+
+.app-container.light .copy-btn:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+  color: black;
+}
+
 @keyframes blink {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.2; }
