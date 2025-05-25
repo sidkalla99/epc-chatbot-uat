@@ -53,7 +53,7 @@ function App() {
 
       console.log("📥 Raw fetch response:", response);
 
-      if (!response.ok) throw new Error(API error: ${response.status});
+      if (!response.ok) throw new Error(`API error: ${response.status}`);
 
       const data = await response.json();
       const answer = data.response || 'No response received.';
@@ -80,7 +80,7 @@ function App() {
   };
 
   return (
-    <div className={app-container ${darkMode ? 'dark' : 'light'}}>
+    <div className={`app-container ${darkMode ? 'dark' : 'light'}`}>
       <div className="chat-container">
         <div className="header">
           <h1>Chatbot</h1>
@@ -96,7 +96,7 @@ function App() {
 
         <div className="chat-box">
           {messages.map((msg, idx) => (
-            <div key={idx} className={message ${msg.sender.toLowerCase()}}>
+            <div key={idx} className={`message ${msg.sender.toLowerCase()}`}>
               {msg.text}
             </div>
           ))}
