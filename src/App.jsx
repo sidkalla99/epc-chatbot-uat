@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { Copy } from 'lucide-react'; // ✅ Icon
 import './App.css';
 
 function App() {
@@ -9,7 +10,13 @@ function App() {
   const [darkMode, setDarkMode] = useState(true);
   const [loading, setLoading] = useState(false);
 
-  const typingRef = useRef(''); // ✅ stores the typed text during animation
+  const typingRef = useRef('');
+
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text).catch(err =>
+      console.error('Copy failed', err)
+    );
+  };
 
   const typeText = (text, onComplete) => {
     let i = 0;
@@ -51,19 +58,12 @@ function App() {
         body: JSON.stringify({ question: userInput }),
       });
 
-      console.log("📥 Raw fetch response:", response);
-
       if (!response.ok) throw new Error(`API error: ${response.status}`);
 
       const data = await response.json();
       const answer = data.response || 'No response received.';
-      console.log("✅ Parsed response JSON:", data);
-      console.log("📩 Answer to type out:", answer);
 
-      // Add empty assistant message
       setMessages(prev => [...prev, { sender: 'Assistant', text: '' }]);
-
-      // Start typing animation
       typeText(answer, () => {
         setLoading(false);
       });
@@ -97,7 +97,20 @@ function App() {
         <div className="chat-box">
           {messages.map((msg, idx) => (
             <div key={idx} className={`message ${msg.sender.toLowerCase()}`}>
-              {msg.text}
+              {msg.sender === 'Assistant' ? (
+                <div className="message-wrapper">
+                  <button
+                    className="copy-btn"
+                    onClick={() => copyToClipboard(msg.text)}
+                    title="Copy"
+                  >
+                    <Copy size={18} />
+                  </button>
+                  <div className="message-text">{msg.text}</div>
+                </div>
+              ) : (
+                msg.text
+              )}
             </div>
           ))}
           {loading && (
