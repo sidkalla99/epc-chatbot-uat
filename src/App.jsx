@@ -83,7 +83,7 @@ function App() {
     <div className={`app-container ${darkMode ? 'dark' : 'light'}`}>
       <div className="chat-container">
         <div className="header">
-          <h1>Chatbot</h1>
+          <h1>Zelo</h1>
           <label className="switch">
             <input
               type="checkbox"
