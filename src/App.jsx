@@ -8,6 +8,7 @@ function App() {
   const [userInput, setUserInput] = useState('');
   const [darkMode, setDarkMode] = useState(true);
   const [loading, setLoading] = useState(false);
+  const sessionIdRef = useRef(crypto.randomUUID());
 
   const typingRef = useRef(''); // ✅ stores the typed text during animation
 
@@ -45,13 +46,14 @@ function App() {
     setLoading(true);
 
     try {
+      console.log("➡️ UI → API:", { question: userInput, sid: sessionIdRef.current });
       const response = await fetch('https://uydyp6dip1.execute-api.eu-central-1.amazonaws.com/prod/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 
+                 'x-session-id': sessionIdRef.current },
         body: JSON.stringify({ question: userInput }),
       });
-
-      console.log("📥 Raw fetch response:", response);
+      console.log("⬅️ API → UI:", await response.clone().text()); 
 
       if (!response.ok) throw new Error(`API error: ${response.status}`);
 
