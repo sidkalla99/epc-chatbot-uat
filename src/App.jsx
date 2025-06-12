@@ -1,14 +1,44 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef,useEffect } from 'react';
 import './App.css';
 
 function App() {
   const sessionIdRef = useRef(crypto.randomUUID());
+
+  // ➕ NEW: keep the socket instance
+  const wsRef = useRef(null);
   const [messages, setMessages] = useState([
     { sender: 'Assistant', text: 'Hello! How can I assist you with your projects?' }
   ]);
   const [userInput, setUserInput] = useState('');
   const [darkMode, setDarkMode] = useState(true);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    wsRef.current = new WebSocket(
+      'wss://vcvpeauj4c.execute-api.eu-central-1.amazonaws.com/production'
+    );
+
+    wsRef.current.onmessage = (evt) => {
+      const { answer } = JSON.parse(evt.data);
+      // add empty assistant bubble then animate
+      setMessages(prev => [...prev, { sender: 'Assistant', text: '' }]);
+      typeText(answer, () => setLoading(false));
+    };
+
+    wsRef.current.onclose = () => console.log('🔌 WebSocket closed');
+    const ping = setInterval(() => {
+      if (wsRef.current.readyState === 1) {
+        wsRef.current.send('{"ping":1}');
+      }
+    }, 480_000);
+    
+     return () => {
+      clearInterval(ping);
+      if (wsRef.current) wsRef.current.close();
+    };
+  }, []);
+    
+  
 
   const typingRef = useRef(''); // ✅ stores the typed text during animation
 
@@ -37,44 +67,65 @@ function App() {
     }, 20);
   };
 
-  const sendMessage = async () => {
-    if (!userInput.trim()) return;
+   const sendMessage = () => {
+  if (!userInput.trim()) return;
 
-    const userMessage = { sender: 'user', text: userInput };
-    setMessages(prev => [...prev, userMessage]);
-    setUserInput('');
-    setLoading(true);
+  if (wsRef.current.readyState !== 1) {
+    console.warn("Socket still opening – try again in a second");
+    return;
+  }
 
-    try {
-      const response = await fetch('https://uydyp6dip1.execute-api.eu-central-1.amazonaws.com/prod/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: userInput ,sessionId: sessionIdRef.current }),
-      });
+  setMessages(prev => [...prev, { sender: 'user', text: userInput }]);
+  setUserInput('');
+  setLoading(true);
 
-      console.log("📥 Raw fetch response:", response);
+  wsRef.current.send(
+    JSON.stringify({
+      question:  userInput,
+      sessionId: sessionIdRef.current
+    })
+  );
+};
 
-      if (!response.ok) throw new Error(`API error: ${response.status}`);
 
-      const data = await response.json();
-      const answer = data.response || 'No response received.';
-      console.log("✅ Parsed response JSON:", data);
-      console.log("📩 Answer to type out:", answer);
+  // const sendMessage = async () => {
+  //   if (!userInput.trim()) return;
 
-      // Add empty assistant message
-      setMessages(prev => [...prev, { sender: 'Assistant', text: '' }]);
+  //   const userMessage = { sender: 'user', text: userInput };
+  //   setMessages(prev => [...prev, userMessage]);
+  //   setUserInput('');
+  //   setLoading(true);
 
-      // Start typing animation
-      typeText(answer, () => {
-        setLoading(false);
-      });
+  //   try {
+  //     const response = await fetch('https://uydyp6dip1.execute-api.eu-central-1.amazonaws.com/prod/chat', {
+  //       method: 'POST',
+  //       headers: { 'Content-Type': 'application/json' },
+  //       body: JSON.stringify({ question: userInput ,sessionId: sessionIdRef.current }),
+  //     });
 
-    } catch (err) {
-      console.error("🔥 Fetch or parse error:", err);
-      setMessages(prev => [...prev, { sender: 'Assistant', text: 'Error fetching response.' }]);
-      setLoading(false);
-    }
-  };
+  //     console.log("📥 Raw fetch response:", response);
+
+  //     if (!response.ok) throw new Error(`API error: ${response.status}`);
+
+  //     const data = await response.json();
+  //     const answer = data.response || 'No response received.';
+  //     console.log("✅ Parsed response JSON:", data);
+  //     console.log("📩 Answer to type out:", answer);
+
+  //     // Add empty assistant message
+  //     setMessages(prev => [...prev, { sender: 'Assistant', text: '' }]);
+
+  //     // Start typing animation
+  //     typeText(answer, () => {
+  //       setLoading(false);
+  //     });
+
+  //   } catch (err) {
+  //     console.error("🔥 Fetch or parse error:", err);
+  //     setMessages(prev => [...prev, { sender: 'Assistant', text: 'Error fetching response.' }]);
+  //     setLoading(false);
+  //   }
+  // };
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') sendMessage();
