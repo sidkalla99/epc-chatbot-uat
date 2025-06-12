@@ -34,15 +34,15 @@ function App() {
       // normal path
       setMessages(prev => [...prev, { sender: 'Assistant', text: '' }]);
       typeText(payload.answer, () => setLoading(false));
-  };
-
-
-    wsRef.current.onmessage = (evt) => {
-      const { answer } = JSON.parse(evt.data);
-      // add empty assistant bubble then animate
-      setMessages(prev => [...prev, { sender: 'Assistant', text: '' }]);
-      typeText(answer, () => setLoading(false));
     };
+
+
+    // wsRef.current.onmessage = (evt) => {
+    //   const { answer } = JSON.parse(evt.data);
+    //   // add empty assistant bubble then animate
+    //   setMessages(prev => [...prev, { sender: 'Assistant', text: '' }]);
+    //   typeText(answer, () => setLoading(false));
+    // };
 
     wsRef.current.onclose = () => console.log('🔌 WebSocket closed');
     const ping = setInterval(() => {
