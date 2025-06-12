@@ -17,6 +17,25 @@ function App() {
     wsRef.current = new WebSocket(
       'wss://vcvpeauj4c.execute-api.eu-central-1.amazonaws.com/production'
     );
+    wsRef.current.onmessage = (evt) => {
+      let payload;                                                      
+      try {
+        payload = JSON.parse(evt.data);
+      } catch (e) {
+        console.warn("Non-JSON frame:", evt.data);                      
+        return;                     // ignore pings or malformed frames
+      }
+      
+      if (!payload.answer) {                                            
+        console.warn("No answer field:", payload);  // e.g., permission error frame
+        return;
+      }
+      
+      // normal path
+      setMessages(prev => [...prev, { sender: 'Assistant', text: '' }]);
+      typeText(payload.answer, () => setLoading(false));
+  };
+
 
     wsRef.current.onmessage = (evt) => {
       const { answer } = JSON.parse(evt.data);
