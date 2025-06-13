@@ -98,7 +98,6 @@
   color: #ffffff;
   border-bottom-left-radius: 4px;
   white-space: pre-wrap;                 /* keep pipes & new-lines */
-  font-family: ui-monospace, monospace;  /* fixed-width columns   */
 }
 
 .app-container.light .message.user {
