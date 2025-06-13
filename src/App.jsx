@@ -1,9 +1,6 @@
 import React, { useState, useRef,useEffect } from 'react';
 import './App.css';
 
-const wantsTable = (txt) =>
-  /\b(table|tabular|grid|spreadsheet|matrix)\b/i.test(txt);
-
 function App() {
   const sessionIdRef = useRef(crypto.randomUUID());
 
@@ -89,55 +86,26 @@ function App() {
     }, 20);
   };
   
-  const sendMessage = () => {
+
+   const sendMessage = () => {
   if (!userInput.trim()) return;
 
-  // prevent premature send
-  if (!wsRef.current || wsRef.current.readyState !== 1) {
+  if (wsRef.current.readyState !== 1) {
     console.warn("Socket still opening – try again in a second");
     return;
   }
 
-  // show the user's text in the chat, exactly as typed
-  setMessages(prev => [...prev, { sender: "user", text: userInput }]);
-  setUserInput("");
+  setMessages(prev => [...prev, { sender: 'user', text: userInput }]);
+  setUserInput('');
   setLoading(true);
-
-  /* ── NEW: build outbound prompt ─────────────── */
-  let outbound = userInput;
-  if (wantsTable(userInput)) {
-    outbound +=
-      "\n\nPlease present your answer **as a Markdown table**, including headers.";
-  }
-  /* ───────────────────────────────────────────── */
 
   wsRef.current.send(
     JSON.stringify({
-      question: outbound,          // send the modified prompt
+      question:  userInput,
       sessionId: sessionIdRef.current
     })
   );
 };
-
-///    const sendMessage = () => {
-//   if (!userInput.trim()) return;
-
-//   if (wsRef.current.readyState !== 1) {
-//     console.warn("Socket still opening – try again in a second");
-//     return;
-//   }
-
-//   setMessages(prev => [...prev, { sender: 'user', text: userInput }]);
-//   setUserInput('');
-//   setLoading(true);
-
-//   wsRef.current.send(
-//     JSON.stringify({
-//       question:  userInput,
-//       sessionId: sessionIdRef.current
-//     })
-//   );
-// };
 
 
   // const sendMessage = async () => {
