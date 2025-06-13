@@ -97,7 +97,6 @@
   background-color: #2f2f2f;
   color: #ffffff;
   border-bottom-left-radius: 4px;
-  white-space: pre-wrap;                 /* keep pipes & new-lines */
 }
 
 .app-container.light .message.user {
