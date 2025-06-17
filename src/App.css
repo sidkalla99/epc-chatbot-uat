@@ -208,25 +208,41 @@ input:checked + .slider:before {
 
 .assistant-wrapper {
   position: relative;
-  padding-right: 30px; /* ensure space for button */
 }
 
 .copy-btn {
   position: absolute;
-  top: 4px;
-  right: 4px;
+  top: 8px;
+  right: 8px;
+  display: none;
+  background: transparent;
   border: none;
-  background: none;
   cursor: pointer;
-  font-size: 16px;
+  padding: 4px;
   color: #888;
-  transition: color 0.2s ease;
+  border-radius: 4px;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .copy-btn:hover {
-  color: #333;
+  background-color: #eaeaea;
+  color: #000;
 }
 
-.assistant-text {
-  white-space: pre-wrap;
+.copy-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.assistant-wrapper:hover .copy-btn {
+  display: flex;
+}
+
+.app-container.dark .copy-btn {
+  color: #aaa;
+}
+
+.app-container.dark .copy-btn:hover {
+  background-color: #333;
+  color: white;
 }
