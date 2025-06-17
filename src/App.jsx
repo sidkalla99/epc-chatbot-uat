@@ -14,48 +14,104 @@ function App() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    wsRef.current = new WebSocket(
-      'wss://vcvpeauj4c.execute-api.eu-central-1.amazonaws.com/production'
-    );
-    wsRef.current.onmessage = (evt) => {
-      let payload;                                                      
+  let ws;
+  let reconnectTimer;
+
+  const connectWebSocket = () => {
+    ws = new WebSocket('wss://vcvpeauj4c.execute-api.eu-central-1.amazonaws.com/production');
+    wsRef.current = ws;
+
+    ws.onopen = () => {
+      console.log('✅ WebSocket connected');
+    };
+
+    ws.onmessage = (evt) => {
+      let payload;
       try {
         payload = JSON.parse(evt.data);
       } catch (e) {
-        console.warn("Non-JSON frame:", evt.data);                      
-        return;                     // ignore pings or malformed frames
-      }
-      
-      if (!payload.answer) {                                            
-        console.warn("No answer field:", payload);  // e.g., permission error frame
+        console.warn("Non-JSON frame:", evt.data);
         return;
       }
-      
-      // normal path
+
+      if (!payload.answer) {
+        console.warn("No answer field:", payload);
+        return;
+      }
+
       setMessages(prev => [...prev, { sender: 'Assistant', text: '' }]);
       typeText(payload.answer, () => setLoading(false));
     };
 
-
-    // wsRef.current.onmessage = (evt) => {
-    //   const { answer } = JSON.parse(evt.data);
-    //   // add empty assistant bubble then animate
-    //   setMessages(prev => [...prev, { sender: 'Assistant', text: '' }]);
-    //   typeText(answer, () => setLoading(false));
-    // };
-
-    wsRef.current.onclose = () => console.log('🔌 WebSocket closed');
-    const ping = setInterval(() => {
-      if (wsRef.current.readyState === 1) {
-        wsRef.current.send('{"ping":1}');
-      }
-    }, 480_000);
-    
-     return () => {
-      clearInterval(ping);
-      if (wsRef.current) wsRef.current.close();
+    ws.onclose = () => {
+      console.warn("🔌 WebSocket closed, retrying in 3 seconds...");
+      reconnectTimer = setTimeout(() => connectWebSocket(), 3000);
     };
-  }, []);
+
+    ws.onerror = (err) => {
+      console.error("WebSocket error:", err);
+      ws.close(); // ensure it triggers onclose
+    };
+  };
+
+  connectWebSocket();
+
+  const ping = setInterval(() => {
+    if (wsRef.current?.readyState === 1) {
+      wsRef.current.send('{"ping":1}');
+    }
+  }, 480_000);
+
+  return () => {
+    clearTimeout(reconnectTimer);
+    clearInterval(ping);
+    wsRef.current?.close();
+  };
+}, []);
+
+  // useEffect(() => {
+  //   wsRef.current = new WebSocket(
+  //     'wss://vcvpeauj4c.execute-api.eu-central-1.amazonaws.com/production'
+  //   );
+  //   wsRef.current.onmessage = (evt) => {
+  //     let payload;                                                      
+  //     try {
+  //       payload = JSON.parse(evt.data);
+  //     } catch (e) {
+  //       console.warn("Non-JSON frame:", evt.data);                      
+  //       return;                     // ignore pings or malformed frames
+  //     }
+      
+  //     if (!payload.answer) {                                            
+  //       console.warn("No answer field:", payload);  // e.g., permission error frame
+  //       return;
+  //     }
+      
+  //     // normal path
+  //     setMessages(prev => [...prev, { sender: 'Assistant', text: '' }]);
+  //     typeText(payload.answer, () => setLoading(false));
+  //   };
+
+
+  //   // wsRef.current.onmessage = (evt) => {
+  //   //   const { answer } = JSON.parse(evt.data);
+  //   //   // add empty assistant bubble then animate
+  //   //   setMessages(prev => [...prev, { sender: 'Assistant', text: '' }]);
+  //   //   typeText(answer, () => setLoading(false));
+  //   // };
+
+  //   wsRef.current.onclose = () => console.log('🔌 WebSocket closed');
+  //   const ping = setInterval(() => {
+  //     if (wsRef.current.readyState === 1) {
+  //       wsRef.current.send('{"ping":1}');
+  //     }
+  //   }, 480_000);
+    
+  //    return () => {
+  //     clearInterval(ping);
+  //     if (wsRef.current) wsRef.current.close();
+  //   };
+  // }, []);
     
   
 
