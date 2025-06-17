@@ -205,3 +205,28 @@ input:checked + .slider:before {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.2; }
 }
+
+.assistant-wrapper {
+  position: relative;
+  padding-right: 30px; /* ensure space for button */
+}
+
+.copy-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: #888;
+  transition: color 0.2s ease;
+}
+
+.copy-btn:hover {
+  color: #333;
+}
+
+.assistant-text {
+  white-space: pre-wrap;
+}
