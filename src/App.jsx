@@ -224,10 +224,31 @@ function App() {
 
         <div className="chat-box">
           {messages.map((msg, idx) => (
-            <div key={idx} className={`message ${msg.sender.toLowerCase()}`}>
-              {msg.text}
-            </div>
-          ))}
+  <div key={idx} className={`message ${msg.sender.toLowerCase()}`}>
+    {msg.sender === 'Assistant' ? (
+      <div className="assistant-wrapper">
+        <div
+          className="assistant-text"
+          dangerouslySetInnerHTML={{ __html: msg.text }}
+        />
+        <button
+          className="copy-btn"
+          onClick={() => {
+            const el = document.createElement("div");
+            el.innerHTML = msg.text;
+            navigator.clipboard.writeText(el.innerText);
+          }}
+          aria-label="Copy to clipboard"
+        >
+          📋
+        </button>
+      </div>
+    ) : (
+      msg.text
+    )}
+  </div>
+))}
+
           {loading && (
             <div className="message assistant">
               <span className="dot-flash"></span>
