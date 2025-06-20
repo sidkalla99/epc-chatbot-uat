@@ -117,31 +117,74 @@ function App() {
 
   const typingRef = useRef(''); // ✅ stores the typed text during animation
 
+  //earlier shaky const typeText = (text, onComplete) => {
+  //   let i = 0;
+  //   typingRef.current = '';
+  //   const interval = setInterval(() => {
+  //     if (i < text.length) {
+  //       typingRef.current += text[i];
+  //       setMessages(prev => {
+  //         const updated = [...prev];
+  //         const last = updated[updated.length - 1];
+  //         if (last.sender === 'Assistant') {
+  //           updated[updated.length - 1] = {
+  //             ...last,
+  //             text: typingRef.current
+  //           };
+  //         }
+  //         return updated;
+  //       });
+  //       i++;
+  //     } else {
+  //       clearInterval(interval);
+  //       if (onComplete) onComplete();
+  //     }
+  //   }, 20);
+  // };
+
   const typeText = (text, onComplete) => {
-    let i = 0;
-    typingRef.current = '';
-    const interval = setInterval(() => {
-      if (i < text.length) {
-        typingRef.current += text[i];
-        setMessages(prev => {
-          const updated = [...prev];
-          const last = updated[updated.length - 1];
-          if (last.sender === 'Assistant') {
-            updated[updated.length - 1] = {
-              ...last,
-              text: typingRef.current
-            };
-          }
-          return updated;
-        });
-        i++;
-      } else {
-        clearInterval(interval);
-        if (onComplete) onComplete();
+  // 🔍 Skip animation for tables
+  if (text.includes('<table')) {
+    typingRef.current = text;
+    setMessages(prev => {
+      const updated = [...prev];
+      const last = updated[updated.length - 1];
+      if (last.sender === 'Assistant') {
+        updated[updated.length - 1] = {
+          ...last,
+          text: typingRef.current
+        };
       }
-    }, 20);
-  };
-  
+      return updated;
+    });
+    if (onComplete) onComplete();
+    return;
+  }
+
+  // ✅ Normal animation path
+  let i = 0;
+  typingRef.current = '';
+  const interval = setInterval(() => {
+    if (i < text.length) {
+      typingRef.current += text[i];
+      setMessages(prev => {
+        const updated = [...prev];
+        const last = updated[updated.length - 1];
+        if (last.sender === 'Assistant') {
+          updated[updated.length - 1] = {
+            ...last,
+            text: typingRef.current
+          };
+        }
+        return updated;
+      });
+      i++;
+    } else {
+      clearInterval(interval);
+      if (onComplete) onComplete();
+    }
+  }, 20);
+};
 
    const sendMessage = () => {
   if (!userInput.trim()) return;
