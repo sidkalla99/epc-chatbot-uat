@@ -250,7 +250,33 @@ function App() {
     if (e.key === 'Enter') sendMessage();
   };
 
- 🔽 Table CSV download handler
+//  🔽 Table CSV download handler
+// function downloadTableAsCSV(index) {
+//   const tempDiv = document.createElement('div');
+//   tempDiv.innerHTML = messages[index].text;
+
+//   const table = tempDiv.querySelector('table');
+//   if (!table) return;
+
+//   const csv = [];
+//   const rows = table.querySelectorAll('tr');
+
+//   for (const row of rows) {
+//     const cells = [...row.querySelectorAll('th, td')].map(cell =>
+//       `"${cell.textContent.replace(/"/g, '""')}"`
+//     );
+//     csv.push(cells.join(','));
+//   }
+
+//   const blob = new Blob([csv.join('\n')], { type: 'text/csv' });
+//   const link = document.createElement('a');
+//   link.href = URL.createObjectURL(blob);
+//   link.download = `zelo-table-${index + 1}.csv`;
+//   document.body.appendChild(link);
+//   link.click();
+//   document.body.removeChild(link);
+// }
+
 function downloadTableAsCSV(index) {
   const tempDiv = document.createElement('div');
   tempDiv.innerHTML = messages[index].text;
@@ -259,13 +285,51 @@ function downloadTableAsCSV(index) {
   if (!table) return;
 
   const csv = [];
-  const rows = table.querySelectorAll('tr');
+  const grid = [];
 
-  for (const row of rows) {
-    const cells = [...row.querySelectorAll('th, td')].map(cell =>
-      `"${cell.textContent.replace(/"/g, '""')}"`
-    );
-    csv.push(cells.join(','));
+  const rowspanTracker = []; // to hold values that need to be repeated vertically
+
+  const rows = table.querySelectorAll('tr');
+  for (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {
+    const row = rows[rowIndex];
+    const cells = [...row.querySelectorAll('th, td')];
+    grid[rowIndex] = [];
+
+    let colIndex = 0;
+
+    while (colIndex < 50) { // prevent infinite loop
+      // Fill from rowspan tracker if any
+      if (rowspanTracker[colIndex]?.count > 0) {
+        grid[rowIndex][colIndex] = rowspanTracker[colIndex].value;
+        rowspanTracker[colIndex].count -= 1;
+        colIndex++;
+      } else {
+        const cell = cells.shift();
+        if (!cell) break;
+
+        const value = cell.textContent.trim().replace(/"/g, '""');
+        const rowspan = parseInt(cell.getAttribute('rowspan') || '1', 10);
+        const colspan = parseInt(cell.getAttribute('colspan') || '1', 10);
+
+        for (let c = 0; c < colspan; c++) {
+          grid[rowIndex][colIndex + c] = value;
+          if (rowspan > 1) {
+            rowspanTracker[colIndex + c] = {
+              value: value,
+              count: rowspan - 1,
+            };
+          }
+        }
+
+        colIndex += colspan;
+      }
+    }
+  }
+
+  // Convert grid to CSV
+  for (let row of grid) {
+    const line = (row || []).map(cell => `"${cell || ''}"`).join(',');
+    csv.push(line);
   }
 
   const blob = new Blob([csv.join('\n')], { type: 'text/csv' });
