@@ -207,6 +207,34 @@ function App() {
     if (e.key === 'Enter') sendMessage();
   };
 
+  // 🔽 Table CSV download handler
+function downloadTableAsCSV(index) {
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = messages[index].text;
+
+  const table = tempDiv.querySelector('table');
+  if (!table) return;
+
+  const csv = [];
+  const rows = table.querySelectorAll('tr');
+
+  for (const row of rows) {
+    const cells = [...row.querySelectorAll('th, td')].map(cell =>
+      `"${cell.textContent.replace(/"/g, '""')}"`
+    );
+    csv.push(cells.join(','));
+  }
+
+  const blob = new Blob([csv.join('\n')], { type: 'text/csv' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `zelo-table-${index + 1}.csv`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+
   return (
     <div className={`app-container ${darkMode ? 'dark' : 'light'}`}>
       <div className="chat-container">
@@ -227,9 +255,22 @@ function App() {
             // <div key={idx} className={`message ${msg.sender.toLowerCase()}`}>
             //   {msg.text}
             // </div>
+            /// <div key={idx} className={`message ${msg.sender.toLowerCase()}`}>
+            ///   <div dangerouslySetInnerHTML={{ __html: msg.text }} />
+            /// </div>
             <div key={idx} className={`message ${msg.sender.toLowerCase()}`}>
-              <div dangerouslySetInnerHTML={{ __html: msg.text }} />
-            </div>
+              {msg.sender === 'Assistant' && msg.text.includes('<table') ? (
+                <div className="table-container">
+                  <div dangerouslySetInnerHTML={{ __html: msg.text }} />
+                  <button onClick={() => downloadTableAsCSV(idx)} className="download-button">
+                    Download CSV
+                  </button>
+             </div>
+      ) : (
+        <div dangerouslySetInnerHTML={{ __html: msg.text }} />
+      )}
+    </div>
+
           ))}
 
           {loading && (
