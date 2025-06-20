@@ -250,33 +250,7 @@ function App() {
     if (e.key === 'Enter') sendMessage();
   };
 
-//   // 🔽 Table CSV download handler
-// function downloadTableAsCSV(index) {
-//   const tempDiv = document.createElement('div');
-//   tempDiv.innerHTML = messages[index].text;
-
-//   const table = tempDiv.querySelector('table');
-//   if (!table) return;
-
-//   const csv = [];
-//   const rows = table.querySelectorAll('tr');
-
-//   for (const row of rows) {
-//     const cells = [...row.querySelectorAll('th, td')].map(cell =>
-//       `"${cell.textContent.replace(/"/g, '""')}"`
-//     );
-//     csv.push(cells.join(','));
-//   }
-
-//   const blob = new Blob([csv.join('\n')], { type: 'text/csv' });
-//   const link = document.createElement('a');
-//   link.href = URL.createObjectURL(blob);
-//   link.download = `zelo-table-${index + 1}.csv`;
-//   document.body.appendChild(link);
-//   link.click();
-//   document.body.removeChild(link);
-// }
-
+ 🔽 Table CSV download handler
 function downloadTableAsCSV(index) {
   const tempDiv = document.createElement('div');
   tempDiv.innerHTML = messages[index].text;
@@ -286,30 +260,12 @@ function downloadTableAsCSV(index) {
 
   const csv = [];
   const rows = table.querySelectorAll('tr');
-  let previousRow = [];
 
-  // Get max number of columns (usually the first row defines it)
-  const maxCols = Math.max(...[...rows].map(row => row.querySelectorAll('th, td').length));
-
-  for (let row of rows) {
-    const cells = [...row.querySelectorAll('th, td')];
-    const currentRow = [];
-
-    for (let i = 0; i < maxCols; i++) {
-      const cell = cells[i];
-      if (cell && cell.textContent.trim() !== '') {
-        const value = cell.textContent.trim().replace(/"/g, '""');
-        currentRow[i] = value;
-      } else if (cells.length < maxCols) {
-        // Only fill missing cells if row is shorter than expected (i.e., grouped row)
-        currentRow[i] = previousRow[i] || '';
-      } else {
-        currentRow[i] = ''; // true empty cell
-      }
-    }
-
-    csv.push(currentRow.map(cell => `"${cell}"`).join(','));
-    previousRow = currentRow;
+  for (const row of rows) {
+    const cells = [...row.querySelectorAll('th, td')].map(cell =>
+      `"${cell.textContent.replace(/"/g, '""')}"`
+    );
+    csv.push(cells.join(','));
   }
 
   const blob = new Blob([csv.join('\n')], { type: 'text/csv' });
@@ -320,6 +276,7 @@ function downloadTableAsCSV(index) {
   link.click();
   document.body.removeChild(link);
 }
+
 
 
   return (
