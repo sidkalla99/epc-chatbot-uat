@@ -300,7 +300,10 @@ function downloadTableAsCSV(index) {
     while (colIndex < 50) { // prevent infinite loop
       // Fill from rowspan tracker if any
       if (rowspanTracker[colIndex]?.count > 0) {
-        grid[rowIndex][colIndex] = rowspanTracker[colIndex].value;
+        if (!grid[rowIndex][colIndex]) {
+          grid[rowIndex][colIndex] = rowspanTracker[colIndex].value;
+        }
+
         rowspanTracker[colIndex].count -= 1;
         colIndex++;
       } else {
