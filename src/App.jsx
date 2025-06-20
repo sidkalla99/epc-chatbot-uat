@@ -310,7 +310,15 @@ function downloadTableAsCSV(index) {
         const cell = cells.shift();
         if (!cell) break;
 
-        const value = cell.textContent.trim().replace(/"/g, '""');
+        let value;
+        const link = cell.querySelector('a');
+        if (link) {
+          value = link.href; // Use the actual link
+        } else {
+          value = cell.textContent.trim();
+        }
+        value = value.replace(/"/g, '""');
+
         const rowspan = parseInt(cell.getAttribute('rowspan') || '1', 10);
         const colspan = parseInt(cell.getAttribute('colspan') || '1', 10);
 
