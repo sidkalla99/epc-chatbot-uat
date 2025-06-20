@@ -205,3 +205,28 @@ input:checked + .slider:before {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.2; }
 }
+
+
+.message.assistant table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0.5rem;
+  font-size: 14px;
+}
+
+.message.assistant th,
+.message.assistant td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: left;
+}
+
+.message.assistant th {
+  background-color: #444;
+  color: white;
+}
+
+.app-container.light .message.assistant th {
+  background-color: #ddd;
+  color: #111;
+}
