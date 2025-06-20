@@ -224,8 +224,11 @@ function App() {
 
         <div className="chat-box">
           {messages.map((msg, idx) => (
+            // <div key={idx} className={`message ${msg.sender.toLowerCase()}`}>
+            //   {msg.text}
+            // </div>
             <div key={idx} className={`message ${msg.sender.toLowerCase()}`}>
-              {msg.text}
+              <div dangerouslySetInnerHTML={{ __html: msg.text }} />
             </div>
           ))}
 
