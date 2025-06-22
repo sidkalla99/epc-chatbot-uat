@@ -5,11 +5,15 @@
   align-items: center;
   justify-content: center;
   background-color: #1e1e1e; /* optional: match your dark mode */
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
 }
 
 .amplify-authenticator {
   max-width: 400px;
   width: 100%;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
 }
 
 /* === APP CONTAINER THEME === */
