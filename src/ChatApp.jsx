@@ -414,4 +414,4 @@ function downloadTableAsCSV(index) {
   );
 }
 
-export default App;
+export default ChatApp;
