@@ -12,12 +12,14 @@ export default function App() {
     <div className="auth-wrapper">
     <Authenticator>
       {({ signOut, user }) => (
-        <main>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', paddingTop: '6rem'}}>
-            <h2 style={{ margin: 0 }}>Welcome, {user?.attributes?.email}</h2>
-            <button onClick={signOut}>Sign Out</button>
+        <main className="app-container">
+          <div className="chat-container">
+          <div className="header">
+          <h2>Welcome, {user?.attributes?.email}</h2>
+          <button onClick={signOut}>Sign Out</button>
           </div>
           <ChatApp />
+          </div>
         </main>
       )}
     </Authenticator>
