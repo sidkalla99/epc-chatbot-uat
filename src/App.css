@@ -1,3 +1,12 @@
+/* Center the Amplify Authenticator in the screen */
+.auth-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;        /* Full screen height */
+  background-color: #121212; /* Optional: matches your dark background */
+}
+
 /* === APP CONTAINER THEME === */
 .app-container.dark {
   background-color: #121212;
