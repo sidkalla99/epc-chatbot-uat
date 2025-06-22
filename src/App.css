@@ -35,6 +35,7 @@
   align-items: center;
   height: 100vh;
   width: 100vw;
+  overflow: hidden
 }
 
 /* === MAIN CHAT CONTAINER === */
@@ -49,6 +50,7 @@
   max-width: none;
   padding: 1rem;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .app-container.dark .chat-container {
@@ -74,9 +76,9 @@
 
 /* === CHAT BUBBLES === */
 .chat-box {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  flex: 1;
   overflow-y: auto;
   padding: 1rem;
   border-radius: 8px;
