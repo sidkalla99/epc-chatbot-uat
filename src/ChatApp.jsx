@@ -1,7 +1,7 @@
 import React, { useState, useRef,useEffect } from 'react';
 import './App.css';
 
-function App() {
+function ChatApp() {
   const sessionIdRef = useRef(crypto.randomUUID());
 
   // ➕ NEW: keep the socket instance
