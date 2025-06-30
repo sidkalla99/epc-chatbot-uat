@@ -14,20 +14,8 @@ function ChatApp() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-  let ws;
-  let reconnectTimer;
-
-  const connectWebSocket = () => {
-    let wsUrl;
-    const currentHost = window.location.hostname;
-
-    if (currentHost.includes('uat')) {
-      wsUrl = 'wss://vcvpeauj4c.execute-api.eu-central-1.amazonaws.com/UAT';
-    } else {
-      wsUrl = 'wss://vcvpeauj4c.execute-api.eu-central-1.amazonaws.com/production';
-    }
-
-    ws = new WebSocket(wsUrl);
+  ws = new WebSocket('wss://vcvpeauj4c.execute-api.eu-central-1.amazonaws.com/production');
+  wsRef.current = ws;
 
 
     ws.onopen = () => {
