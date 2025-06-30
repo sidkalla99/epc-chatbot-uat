@@ -18,7 +18,7 @@ function ChatApp() {
   let reconnectTimer;
 
   const connectWebSocket = () => {
-    ws = new WebSocket('wss://vcvpeauj4c.execute-api.eu-central-1.amazonaws.com/production');
+    ws = new WebSocket(process.env.REACT_APP_WS_URL);
     wsRef.current = ws;
 
     ws.onopen = () => {
