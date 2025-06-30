@@ -18,8 +18,17 @@ function ChatApp() {
   let reconnectTimer;
 
   const connectWebSocket = () => {
-    ws = new WebSocket(process.env.REACT_APP_WS_URL);
-    wsRef.current = ws;
+    let wsUrl;
+    const currentHost = window.location.hostname;
+
+    if (currentHost.includes('uat')) {
+      wsUrl = 'wss://vcvpeauj4c.execute-api.eu-central-1.amazonaws.com/UAT';
+    } else {
+      wsUrl = 'wss://vcvpeauj4c.execute-api.eu-central-1.amazonaws.com/production';
+    }
+
+    ws = new WebSocket(wsUrl);
+
 
     ws.onopen = () => {
       console.log('✅ WebSocket connected');
