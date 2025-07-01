@@ -18,7 +18,7 @@ let ws;
 let reconnectTimer;
 
 const connectWebSocket = () => {
-    ws = new WebSocket('wss://vcvpeauj4c.execute-api.eu-central-1.amazonaws.com/production');
+    ws = new WebSocket('wss://wvro807cha.execute-api.eu-central-1.amazonaws.com/production');
     wsRef.current = ws;
 
 ws.onopen = () => {
