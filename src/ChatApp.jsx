@@ -5,6 +5,14 @@ function ChatApp() {
 const sessionIdRef = useRef(crypto.randomUUID());
 
 // ➕ NEW: keep the socket instance
+const copyToClipboard = (text) => {
+  navigator.clipboard.writeText(text).then(() => {
+    console.log("✅ Copied to clipboard");
+  }).catch((err) => {
+    console.error("❌ Failed to copy: ", err);
+  });
+};
+
 const wsRef = useRef(null);
 const [messages, setMessages] = useState([
 { sender: 'Assistant', text: 'Hello! How can I assist you with your projects?' }
@@ -370,25 +378,42 @@ onChange={() => setDarkMode(!darkMode)}
 </div>
 
 <div className="chat-box">
-{messages.map((msg, idx) => (
-// <div key={idx} className={`message ${msg.sender.toLowerCase()}`}>
-//   {msg.text}
-// </div>
-/// <div key={idx} className={`message ${msg.sender.toLowerCase()}`}>
-///   <div dangerouslySetInnerHTML={{ __html: msg.text }} />
-/// </div>
-<div key={idx} className={`message ${msg.sender.toLowerCase()}`}>
-{msg.sender === 'Assistant' && msg.text.includes('<table') ? (
-<div className="table-container">
-<div dangerouslySetInnerHTML={{ __html: msg.text }} />
-<button onClick={() => downloadTableAsCSV(idx)} className="download-button">
-Download CSV
-</button>
-</div>
-) : (
-<div dangerouslySetInnerHTML={{ __html: msg.text }} />
-)}
-</div>
+  {messages.map((msg, idx) => (
+    <div key={idx} className={`message ${msg.sender.toLowerCase()}`}>
+      {msg.text.includes('<table') ? (
+        <div className="table-container">
+          <div dangerouslySetInnerHTML={{ __html: msg.text }} />
+          <div className="button-row">
+            <button
+              onClick={() => downloadTableAsCSV(idx)}
+              className="download-button"
+            >
+              Download CSV
+            </button>
+            <button
+              onClick={() =>
+                copyToClipboard(msg.text.replace(/<[^>]*>?/gm, ''))
+              }
+              className="copy-button"
+            >
+              Copy
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div>
+          <div dangerouslySetInnerHTML={{ __html: msg.text }} />
+          <button
+            onClick={() =>
+              copyToClipboard(msg.text.replace(/<[^>]*>?/gm, ''))
+            }
+            className="copy-button"
+          >
+            Copy
+          </button>
+        </div>
+      )}
+    </div>
 
 ))}
 
