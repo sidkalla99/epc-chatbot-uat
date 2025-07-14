@@ -378,46 +378,62 @@ onChange={() => setDarkMode(!darkMode)}
 </div>
 
 <div className="chat-box">
-{messages.map((msg, idx) => (
-  <div key={idx} className={`message ${msg.sender.toLowerCase()}`}>
-    {msg.sender === 'Assistant' && msg.text.includes('<table') ? (
-      <div className="table-container">
-        <div dangerouslySetInnerHTML={{ __html: msg.text }} />
-        <div className="button-row">
-          <button
-            onClick={() => downloadTableAsCSV(idx)}
-            className="download-button"
-          >
-            Download CSV
-          </button>
-          <button
-            onClick={() =>
-              copyToClipboard(msg.text.replace(/<[^>]*>?/gm, ''))
-            }
-            className="copy-button"
-          >
-            Copy
-          </button>
-        </div>
-      </div>
-    ) : (
-      <div>
-        <div dangerouslySetInnerHTML={{ __html: msg.text }} />
-        {msg.sender === 'Assistant' && (
-          <button
-            onClick={() =>
-              copyToClipboard(msg.text.replace(/<[^>]*>?/gm, ''))
-            }
-            className="copy-button"
-          >
-            Copy
-          </button>
-        )}
-      </div>
-    )}
-  </div>
+{messages.map((msg, idx) => {
+  const [copiedIndex, setCopiedIndex] = useState(null);
 
-))}
+  const isHello = msg.text.toLowerCase().includes("hello");
+  const isAssistant = msg.sender === 'Assistant';
+
+  const handleCopy = (text, index) => {
+    navigator.clipboard.writeText(text);
+    setCopiedIndex(index);
+    setTimeout(() => setCopiedIndex(null), 1000);
+  };
+
+  return (
+    <div key={idx} className={`message ${msg.sender.toLowerCase()}`}>
+      {isAssistant && msg.text.includes('<table') ? (
+        <div className="table-container">
+          <div dangerouslySetInnerHTML={{ __html: msg.text }} />
+          <div className="button-row">
+            <button
+              onClick={() => downloadTableAsCSV(idx)}
+              className="download-button"
+            >
+              Download CSV
+            </button>
+            {!isHello && (
+              <button
+                onClick={() =>
+                  handleCopy(msg.text.replace(/<[^>]*>?/gm, ''), idx)
+                }
+                className="copy-button"
+                disabled={copiedIndex === idx}
+              >
+                {copiedIndex === idx ? "Copied!" : "Copy"}
+              </button>
+            )}
+          </div>
+        </div>
+      ) : (
+        <div>
+          <div dangerouslySetInnerHTML={{ __html: msg.text }} />
+          {isAssistant && !isHello && (
+            <button
+              onClick={() =>
+                handleCopy(msg.text.replace(/<[^>]*>?/gm, ''), idx)
+              }
+              className="copy-button"
+              disabled={copiedIndex === idx}
+            >
+              {copiedIndex === idx ? "Copied!" : "Copy"}
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+})}
 
 {loading && (
 <div className="message assistant">
