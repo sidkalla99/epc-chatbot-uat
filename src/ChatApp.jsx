@@ -378,31 +378,18 @@ onChange={() => setDarkMode(!darkMode)}
 </div>
 
 <div className="chat-box">
-  {messages.map((msg, idx) => (
-    <div key={idx} className={`message ${msg.sender.toLowerCase()}`}>
-      {msg.text.includes('<table') ? (
-        <div className="table-container">
-          <div dangerouslySetInnerHTML={{ __html: msg.text }} />
-          <div className="button-row">
-            <button
-              onClick={() => downloadTableAsCSV(idx)}
-              className="download-button"
-            >
-              Download CSV
-            </button>
-            <button
-              onClick={() =>
-                copyToClipboard(msg.text.replace(/<[^>]*>?/gm, ''))
-              }
-              className="copy-button"
-            >
-              Copy
-            </button>
-          </div>
-        </div>
-      ) : (
-        <div>
-          <div dangerouslySetInnerHTML={{ __html: msg.text }} />
+{messages.map((msg, idx) => (
+  <div key={idx} className={`message ${msg.sender.toLowerCase()}`}>
+    {msg.sender === 'Assistant' && msg.text.includes('<table') ? (
+      <div className="table-container">
+        <div dangerouslySetInnerHTML={{ __html: msg.text }} />
+        <div className="button-row">
+          <button
+            onClick={() => downloadTableAsCSV(idx)}
+            className="download-button"
+          >
+            Download CSV
+          </button>
           <button
             onClick={() =>
               copyToClipboard(msg.text.replace(/<[^>]*>?/gm, ''))
@@ -412,8 +399,23 @@ onChange={() => setDarkMode(!darkMode)}
             Copy
           </button>
         </div>
-      )}
-    </div>
+      </div>
+    ) : (
+      <div>
+        <div dangerouslySetInnerHTML={{ __html: msg.text }} />
+        {msg.sender === 'Assistant' && (
+          <button
+            onClick={() =>
+              copyToClipboard(msg.text.replace(/<[^>]*>?/gm, ''))
+            }
+            className="copy-button"
+          >
+            Copy
+          </button>
+        )}
+      </div>
+    )}
+  </div>
 
 ))}
 
