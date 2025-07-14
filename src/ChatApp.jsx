@@ -161,6 +161,7 @@ if (last.sender === 'Assistant') {
 updated[updated.length - 1] = {
 ...last,
 text: typingRef.current
+finished: true
 };
 }
 return updated;
@@ -182,6 +183,7 @@ if (last.sender === 'Assistant') {
 updated[updated.length - 1] = {
 ...last,
 text: typingRef.current
+finished: i === text.length - 1
 };
 }
 return updated;
@@ -416,7 +418,7 @@ onChange={() => setDarkMode(!darkMode)}
       ) : (
         <div>
           <div dangerouslySetInnerHTML={{ __html: msg.text }} />
-          {isAssistant && !isHello && (
+          {isAssistant && !isHello && msg.finished && (
             <button
               onClick={() =>
                 handleCopy(msg.text.replace(/<[^>]*>?/gm, ''), idx)
