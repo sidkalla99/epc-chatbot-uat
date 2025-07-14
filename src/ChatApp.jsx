@@ -160,7 +160,7 @@ const last = updated[updated.length - 1];
 if (last.sender === 'Assistant') {
 updated[updated.length - 1] = {
 ...last,
-text: typingRef.current
+text: typingRef.current,
 finished: true
 };
 }
@@ -182,7 +182,7 @@ const last = updated[updated.length - 1];
 if (last.sender === 'Assistant') {
 updated[updated.length - 1] = {
 ...last,
-text: typingRef.current
+text: typingRef.current,
 finished: i === text.length - 1
 };
 }
