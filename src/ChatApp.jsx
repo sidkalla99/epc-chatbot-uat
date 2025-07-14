@@ -1,3 +1,4 @@
+import * as XLSX from 'xlsx';
 import React, { useState, useRef,useEffect } from 'react';
 import './App.css';
 
@@ -288,79 +289,67 @@ if (e.key === 'Enter') sendMessage();
 // }
 
 function downloadTableAsCSV(index) {
-const tempDiv = document.createElement('div');
-tempDiv.innerHTML = messages[index].text;
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = messages[index].text;
 
-const table = tempDiv.querySelector('table');
-if (!table) return;
+  const tables = tempDiv.querySelectorAll('table');
+  if (!tables || tables.length === 0) return;
 
-const csv = [];
-const grid = [];
+  const wb = XLSX.utils.book_new();
 
-const rowspanTracker = []; // to hold values that need to be repeated vertically
+  tables.forEach((table, tableIndex) => {
+    const grid = [];
+    const rowspanTracker = [];
+    const rows = table.querySelectorAll('tr');
 
-const rows = table.querySelectorAll('tr');
-for (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {
-const row = rows[rowIndex];
-const cells = [...row.querySelectorAll('th, td')];
-grid[rowIndex] = [];
+    for (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {
+      const row = rows[rowIndex];
+      const cells = [...row.querySelectorAll('th, td')];
+      grid[rowIndex] = [];
 
-let colIndex = 0;
+      let colIndex = 0;
 
-while (colIndex < 50) { // prevent infinite loop
-// Fill from rowspan tracker if any
-if (rowspanTracker[colIndex]?.count > 0) {
-if (!grid[rowIndex][colIndex]) {
-grid[rowIndex][colIndex] = rowspanTracker[colIndex].value;
+      while (colIndex < 50) {
+        if (rowspanTracker[colIndex]?.count > 0) {
+          if (!grid[rowIndex][colIndex]) {
+            grid[rowIndex][colIndex] = rowspanTracker[colIndex].value;
+          }
+          rowspanTracker[colIndex].count -= 1;
+          colIndex++;
+        } else {
+          const cell = cells.shift();
+          if (!cell) break;
+
+          let value;
+          const link = cell.querySelector('a');
+          value = link ? link.href : cell.textContent.trim();
+          value = value.replace(/"/g, '""');
+
+          const rowspan = parseInt(cell.getAttribute('rowspan') || '1', 10);
+          const colspan = parseInt(cell.getAttribute('colspan') || '1', 10);
+
+          for (let c = 0; c < colspan; c++) {
+            grid[rowIndex][colIndex + c] = value;
+            if (rowspan > 1) {
+              rowspanTracker[colIndex + c] = {
+                value: value,
+                count: rowspan - 1,
+              };
+            }
+          }
+
+          colIndex += colspan;
+        }
+      }
+    }
+
+    const ws = XLSX.utils.aoa_to_sheet(grid);
+    XLSX.utils.book_append_sheet(wb, ws, `Table ${tableIndex + 1}`);
+  });
+
+  XLSX.writeFile(wb, `zelo-multi-table-${index + 1}.xlsx`);
 }
 
-rowspanTracker[colIndex].count -= 1;
-colIndex++;
-} else {
-const cell = cells.shift();
-if (!cell) break;
-
-let value;
-const link = cell.querySelector('a');
-if (link) {
-value = link.href; // Use the actual link
-} else {
-value = cell.textContent.trim();
-}
-value = value.replace(/"/g, '""');
-
-const rowspan = parseInt(cell.getAttribute('rowspan') || '1', 10);
-const colspan = parseInt(cell.getAttribute('colspan') || '1', 10);
-
-for (let c = 0; c < colspan; c++) {
-grid[rowIndex][colIndex + c] = value;
-if (rowspan > 1) {
-rowspanTracker[colIndex + c] = {
-value: value,
-count: rowspan - 1,
-};
-}
-}
-
-colIndex += colspan;
-}
-}
-}
-
-// Convert grid to CSV
-for (let row of grid) {
-const line = (row || []).map(cell => `"${cell || ''}"`).join(',');
-csv.push(line);
-}
-
-const blob = new Blob([csv.join('\n')], { type: 'text/csv' });
-const link = document.createElement('a');
-link.href = URL.createObjectURL(blob);
-link.download = `zelo-table-${index + 1}.csv`;
-document.body.appendChild(link);
-link.click();
-document.body.removeChild(link);
-}
 
 
 
