@@ -266,3 +266,27 @@ input:checked + .slider:before {
 .download-button:hover {
   background-color: #45a049;
 }
+
+.copy-button,
+.download-button {
+  margin-top: 6px;
+  margin-right: 8px;
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  border: none;
+  background-color: #4caf50;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.copy-button:hover,
+.download-button:hover {
+  background-color: #45a049;
+}
+
+.button-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
