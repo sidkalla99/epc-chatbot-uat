@@ -3,6 +3,7 @@ import './App.css';
 
 function ChatApp() {
 const sessionIdRef = useRef(crypto.randomUUID());
+const [copiedIndex, setCopiedIndex] = useState(null);
 
 // ➕ NEW: keep the socket instance
 const copyToClipboard = (text) => {
@@ -12,7 +13,6 @@ const copyToClipboard = (text) => {
     console.error("❌ Failed to copy: ", err);
   });
 };
-
 const wsRef = useRef(null);
 const [messages, setMessages] = useState([
 { sender: 'Assistant', text: 'Hello! How can I assist you with your projects?' }
@@ -379,15 +379,13 @@ onChange={() => setDarkMode(!darkMode)}
 
 <div className="chat-box">
 {messages.map((msg, idx) => {
-  const [copiedIndex, setCopiedIndex] = useState(null);
-
   const isHello = msg.text.toLowerCase().includes("hello");
   const isAssistant = msg.sender === 'Assistant';
 
   const handleCopy = (text, index) => {
     navigator.clipboard.writeText(text);
     setCopiedIndex(index);
-    setTimeout(() => setCopiedIndex(null), 1000);
+    setTimeout(() => setCopiedIndex(null), 500);
   };
 
   return (
