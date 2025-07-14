@@ -385,7 +385,7 @@ onChange={() => setDarkMode(!darkMode)}
   const handleCopy = (text, index) => {
     navigator.clipboard.writeText(text);
     setCopiedIndex(index);
-    setTimeout(() => setCopiedIndex(null), 500);
+    setTimeout(() => setCopiedIndex(null), 3000);
   };
 
   return (
