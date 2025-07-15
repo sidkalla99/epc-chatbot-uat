@@ -389,7 +389,7 @@ onChange={() => setDarkMode(!darkMode)}
               onClick={() => downloadTableAsCSV(idx)}
               className="download-button"
             >
-              Download CSV
+              Download Report
             </button>
             {!isHello && (
               <button
