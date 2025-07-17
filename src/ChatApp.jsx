@@ -300,7 +300,13 @@ function downloadTableAsCSV(index) {
   tables.forEach((table, tableIndex) => {
     const grid = [];
     const rowspanTracker = [];
-    const rows = table.querySelectorAll('tr');
+    let rows = table.querySelectorAll('tr');
+
+    // If the first row is a heading or title that matches all column headers, skip it
+    if (rows.length > 1 && rows[0].textContent === rows[1].textContent) {
+    rows = Array.from(rows).slice(1); // Skip duplicate heading
+    }
+
 
     for (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {
       const row = rows[rowIndex];
@@ -344,8 +350,13 @@ function downloadTableAsCSV(index) {
     }
 
     const ws = XLSX.utils.aoa_to_sheet(grid);
-    XLSX.utils.book_append_sheet(wb, ws, `Table ${tableIndex + 1}`);
-  });
+    // Try to get the table title (e.g., "Pipeline Projects in Peru")
+    const prevTitle = table.previousSibling?.textContent?.trim() || `Table ${tableIndex + 1}`;
+    const sheetName = prevTitle.substring(0, 31); // Excel sheet names max out at 31 characters
+
+    XLSX.utils.book_append_sheet(wb, ws, sheetName);
+
+   });
 
   XLSX.writeFile(wb, `zelo-multi-table-${index + 1}.xlsx`);
 }
