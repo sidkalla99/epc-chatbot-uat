@@ -287,7 +287,9 @@ if (e.key === 'Enter') sendMessage();
 //   link.click();
 //   document.body.removeChild(link);
 // }
-
+function sanitizeSheetName(name) {
+  return name.replace(/[\[\]\*\/\\\?\:]/g, '').slice(0, 31); // Remove illegal characters and trim to 31 chars
+}
 function downloadTableAsCSV(index) {
   const tempDiv = document.createElement('div');
   tempDiv.innerHTML = messages[index].text;
@@ -352,7 +354,7 @@ function downloadTableAsCSV(index) {
     const ws = XLSX.utils.aoa_to_sheet(grid);
     // Try to get the table title (e.g., "Pipeline Projects in Peru")
     const prevTitle = table.previousSibling?.textContent?.trim() || `Table ${tableIndex + 1}`;
-    const sheetName = prevTitle.substring(0, 31); // Excel sheet names max out at 31 characters
+    const sheetName = sanitizeSheetName(prevTitle || `Table ${tableIndex + 1}`);
 
     XLSX.utils.book_append_sheet(wb, ws, sheetName);
 
