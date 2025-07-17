@@ -287,9 +287,97 @@ if (e.key === 'Enter') sendMessage();
 //   link.click();
 //   document.body.removeChild(link);
 // }
+// function sanitizeSheetName(name) {
+//   return name.replace(/[\[\]\*\/\\\?\:]/g, '').slice(0, 31); // Remove illegal characters and trim to 31 chars
+// }
+// function downloadTableAsCSV(index) {
+//   const tempDiv = document.createElement('div');
+//   tempDiv.innerHTML = messages[index].text;
+
+//   const tables = tempDiv.querySelectorAll('table');
+//   if (!tables || tables.length === 0) return;
+
+//   const wb = XLSX.utils.book_new();
+
+//   tables.forEach((table, tableIndex) => {
+//     const grid = [];
+//     const rowspanTracker = [];
+//     let rows = table.querySelectorAll('tr');
+
+//     // If the first row is a heading or title that matches all column headers, skip it
+//     if (rows.length > 1 && rows[0].textContent === rows[1].textContent) {
+//     rows = Array.from(rows).slice(1); // Skip duplicate heading
+//     }
+
+
+//     for (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {
+//       const row = rows[rowIndex];
+//       const cells = [...row.querySelectorAll('th, td')];
+//       grid[rowIndex] = [];
+
+//       let colIndex = 0;
+
+//       while (colIndex < 50) {
+//         if (rowspanTracker[colIndex]?.count > 0) {
+//           if (!grid[rowIndex][colIndex]) {
+//             grid[rowIndex][colIndex] = rowspanTracker[colIndex].value;
+//           }
+//           rowspanTracker[colIndex].count -= 1;
+//           colIndex++;
+//         } else {
+//           const cell = cells.shift();
+//           if (!cell) break;
+
+//           let value;
+//           const link = cell.querySelector('a');
+//           value = link ? link.href : cell.textContent.trim();
+//           value = value.replace(/"/g, '""');
+
+//           const rowspan = parseInt(cell.getAttribute('rowspan') || '1', 10);
+//           const colspan = parseInt(cell.getAttribute('colspan') || '1', 10);
+
+//           for (let c = 0; c < colspan; c++) {
+//             grid[rowIndex][colIndex + c] = value;
+//             if (rowspan > 1) {
+//               rowspanTracker[colIndex + c] = {
+//                 value: value,
+//                 count: rowspan - 1,
+//               };
+//             }
+//           }
+
+//           colIndex += colspan;
+//         }
+//       }
+//     }
+
+//     const ws = XLSX.utils.aoa_to_sheet(grid);
+//     // Try to get the table title (e.g., "Pipeline Projects in Peru")
+//     const prevTitle = table.previousSibling?.textContent?.trim() || `Table ${tableIndex + 1}`;
+//     const sheetName = sanitizeSheetName(prevTitle || `Table ${tableIndex + 1}`);
+
+//     XLSX.utils.book_append_sheet(wb, ws, sheetName);
+
+//    });
+
+//   XLSX.writeFile(wb, `zelo-multi-table-${index + 1}.xlsx`);
+// }
+
 function sanitizeSheetName(name) {
-  return name.replace(/[\[\]\*\/\\\?\:]/g, '').slice(0, 31); // Remove illegal characters and trim to 31 chars
+  return name
+    .replace(/[:\\/?*\[\]]/g, '')  // remove illegal characters
+    .substring(0, 31)              // Excel max length for sheet names
+    .trim() || 'Sheet';           // fallback
 }
+
+function getSheetTitleFromTable(table, index) {
+  let node = table.previousSibling;
+  while (node && (!node.textContent || node.textContent.trim() === '')) {
+    node = node.previousSibling;
+  }
+  return sanitizeSheetName(node?.textContent || `Table ${index + 1}`);
+}
+
 function downloadTableAsCSV(index) {
   const tempDiv = document.createElement('div');
   tempDiv.innerHTML = messages[index].text;
@@ -304,11 +392,13 @@ function downloadTableAsCSV(index) {
     const rowspanTracker = [];
     let rows = table.querySelectorAll('tr');
 
-    // If the first row is a heading or title that matches all column headers, skip it
-    if (rows.length > 1 && rows[0].textContent === rows[1].textContent) {
-    rows = Array.from(rows).slice(1); // Skip duplicate heading
+    // ⛔ Avoid duplicate headers (skip first row if identical to second)
+    if (
+      rows.length > 1 &&
+      rows[0].textContent.trim() === rows[1].textContent.trim()
+    ) {
+      rows = Array.from(rows).slice(1); // skip duplicate heading
     }
-
 
     for (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {
       const row = rows[rowIndex];
@@ -316,7 +406,6 @@ function downloadTableAsCSV(index) {
       grid[rowIndex] = [];
 
       let colIndex = 0;
-
       while (colIndex < 50) {
         if (rowspanTracker[colIndex]?.count > 0) {
           if (!grid[rowIndex][colIndex]) {
@@ -328,9 +417,7 @@ function downloadTableAsCSV(index) {
           const cell = cells.shift();
           if (!cell) break;
 
-          let value;
-          const link = cell.querySelector('a');
-          value = link ? link.href : cell.textContent.trim();
+          let value = cell.querySelector('a')?.href || cell.textContent.trim();
           value = value.replace(/"/g, '""');
 
           const rowspan = parseInt(cell.getAttribute('rowspan') || '1', 10);
@@ -339,10 +426,7 @@ function downloadTableAsCSV(index) {
           for (let c = 0; c < colspan; c++) {
             grid[rowIndex][colIndex + c] = value;
             if (rowspan > 1) {
-              rowspanTracker[colIndex + c] = {
-                value: value,
-                count: rowspan - 1,
-              };
+              rowspanTracker[colIndex + c] = { value, count: rowspan - 1 };
             }
           }
 
@@ -352,17 +436,12 @@ function downloadTableAsCSV(index) {
     }
 
     const ws = XLSX.utils.aoa_to_sheet(grid);
-    // Try to get the table title (e.g., "Pipeline Projects in Peru")
-    const prevTitle = table.previousSibling?.textContent?.trim() || `Table ${tableIndex + 1}`;
-    const sheetName = sanitizeSheetName(prevTitle || `Table ${tableIndex + 1}`);
-
+    const sheetName = getSheetTitleFromTable(table, tableIndex);
     XLSX.utils.book_append_sheet(wb, ws, sheetName);
+  });
 
-   });
-
-  XLSX.writeFile(wb, `zelo-multi-table-${index + 1}.xlsx`);
+  XLSX.writeFile(wb, `zelo-tables-${index + 1}.xlsx`);
 }
-
 
 
 
