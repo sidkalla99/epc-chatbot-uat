@@ -1,6 +1,3 @@
-session timeout 
-
-app.js 
 import React, { useEffect } from 'react';
 import { Amplify } from 'aws-amplify';
 import { Authenticator } from '@aws-amplify/ui-react';
