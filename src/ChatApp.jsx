@@ -184,7 +184,8 @@ if (last.sender === 'Assistant') {
 updated[updated.length - 1] = {
 ...last,
 text: typingRef.current,
-finished: i === text.length - 1
+// finished: i === text.length - 1
+finished: false
 };
 }
 return updated;
@@ -192,9 +193,20 @@ return updated;
 i++;
 } else {
 clearInterval(interval);
-if (onComplete) onComplete();
-}
-}, 20);
+setMessages(prev => {
+        const updated = [...prev];
+        const last = updated[updated.length - 1];
+        if (last.sender === 'Assistant') {
+          updated[updated.length - 1] = {
+            ...last,
+            finished: true
+          };
+        }
+        return updated;
+      });
+      if (onComplete) onComplete();
+    }
+  }, 20);
 };
 
 const sendMessage = () => {
