@@ -13,7 +13,7 @@ function SessionWrapper({ user, signOut }) {
     const timeout = setTimeout(() => {
       alert('🔒 Session expired. You will be logged out.');
       signOut();
-    }, 2 * 60 * 1000); // ⏱ 2 minutes
+    }, 60 * 60 * 1000); // ⏱ 2 minutes
 
     return () => clearTimeout(timeout);
   }, [signOut]);
