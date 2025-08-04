@@ -30,15 +30,6 @@ const connectWebSocket = () => {
     ws = new WebSocket('wss://wvro807cha.execute-api.eu-central-1.amazonaws.com/production');
     wsRef.current = ws;
 
-
-  ws.onopen = () => {
-    console.log('✅ WebSocket connected with token');
-  };
-  
-  // ... rest of your code
-};
-
-
 ws.onopen = () => {
 console.log('✅ WebSocket connected');
 };
