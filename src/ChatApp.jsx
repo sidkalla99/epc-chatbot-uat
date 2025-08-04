@@ -1,6 +1,7 @@
 import * as XLSX from 'xlsx';
 import React, { useState, useRef,useEffect } from 'react';
 import './App.css';
+import { Auth } from "aws-amplify";
 
 function ChatApp() {
 const sessionIdRef = useRef(crypto.randomUUID());
@@ -26,9 +27,27 @@ useEffect(() => {
 let ws;
 let reconnectTimer;
 
-const connectWebSocket = () => {
-    ws = new WebSocket('wss://wvro807cha.execute-api.eu-central-1.amazonaws.com/production');
-    wsRef.current = ws;
+// const connectWebSocket = () => {
+//     ws = new WebSocket('wss://wvro807cha.execute-api.eu-central-1.amazonaws.com/production');
+//     wsRef.current = ws;
+const connectWebSocket = async () => {
+  // Get ID token
+  const session = await Auth.currentSession();
+  const token = session.getIdToken().getJwtToken();
+
+  // Pass token as query parameter
+  ws = new WebSocket(
+    `wss://wvro807cha.execute-api.eu-central-1.amazonaws.com/production?token=${token}`
+  );
+  wsRef.current = ws;
+
+  ws.onopen = () => {
+    console.log('✅ WebSocket connected with token');
+  };
+  
+  // ... rest of your code
+};
+
 
 ws.onopen = () => {
 console.log('✅ WebSocket connected');
