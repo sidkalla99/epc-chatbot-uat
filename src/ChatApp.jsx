@@ -105,7 +105,6 @@ ws.onerror = (err) => {
 console.error("WebSocket error:", err);
 ws.close(); // ensure it triggers onclose
 };
-};
 
 connectWebSocket();
 
