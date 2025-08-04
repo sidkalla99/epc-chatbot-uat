@@ -1,7 +1,6 @@
 import * as XLSX from 'xlsx';
 import React, { useState, useRef,useEffect } from 'react';
 import './App.css';
-import { Auth } from "aws-amplify";
 
 function ChatApp() {
 const sessionIdRef = useRef(crypto.randomUUID());
@@ -91,7 +90,7 @@ ws.onclose = () => {
 console.warn("🔌 WebSocket closed, retrying in 3 seconds...");
 reconnectTimer = setTimeout(() => connectWebSocket(), 3000);
 };
-
+};
 ws.onerror = (err) => {
 console.error("WebSocket error:", err);
 ws.close(); // ensure it triggers onclose
