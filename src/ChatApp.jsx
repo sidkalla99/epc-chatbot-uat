@@ -27,19 +27,10 @@ useEffect(() => {
 let ws;
 let reconnectTimer;
 
-// const connectWebSocket = () => {
-//     ws = new WebSocket('wss://wvro807cha.execute-api.eu-central-1.amazonaws.com/production');
-//     wsRef.current = ws;
-const connectWebSocket = async () => {
-  // Get ID token
-  const session = await Auth.currentSession();
-  const token = session.getIdToken().getJwtToken();
+const connectWebSocket = () => {
+    ws = new WebSocket('wss://wvro807cha.execute-api.eu-central-1.amazonaws.com/production');
+    wsRef.current = ws;
 
-  // Pass token as query parameter
-  ws = new WebSocket(
-    `wss://wvro807cha.execute-api.eu-central-1.amazonaws.com/production?token=${token}`
-  );
-  wsRef.current = ws;
 
   ws.onopen = () => {
     console.log('✅ WebSocket connected with token');
