@@ -81,10 +81,11 @@ ws.onclose = () => {
 console.warn("🔌 WebSocket closed, retrying in 3 seconds...");
 reconnectTimer = setTimeout(() => connectWebSocket(), 3000);
 };
-};
+
 ws.onerror = (err) => {
 console.error("WebSocket error:", err);
 ws.close(); // ensure it triggers onclose
+};
 };
 
 connectWebSocket();
@@ -460,5 +461,3 @@ placeholder="Type your query here..."
 </div>
 );
 }
-
-export default ChatApp;
