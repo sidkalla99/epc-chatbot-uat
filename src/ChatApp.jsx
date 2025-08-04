@@ -461,3 +461,5 @@ placeholder="Type your query here..."
 </div>
 );
 }
+
+export default ChatApp;
