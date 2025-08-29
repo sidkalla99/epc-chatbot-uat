@@ -46,7 +46,7 @@
   height: 100%;
   width: 100%;
   max-width: 800px;
-  max-width: none;
+/*   max-width: none; */
   padding: 1rem;
   box-sizing: border-box;
   overflow: hidden;
@@ -77,10 +77,11 @@
 
 /* === CHAT BUBBLES === */
 .chat-box {
-  flex: 1;
+  flex-grow: 1;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+  min-height: 0;  /* 💡 CRITICAL for scroll inside flex */
   padding: 1rem;
   border-radius: 8px;
   margin-bottom: 1rem;
@@ -119,6 +120,12 @@
   background-color: #2f2f2f;
   color: #ffffff;
   border-bottom-left-radius: 4px;
+}
+
+.message.assistant table {
+  width: 100%;
+  display: block;
+  overflow-x: auto;
 }
 
 .app-container.light .message.user {
