@@ -78,6 +78,7 @@
 /* === CHAT BUBBLES === */
 .chat-box {
   flex: 1;
+  max-height: 80vh;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
