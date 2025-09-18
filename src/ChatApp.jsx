@@ -1,6 +1,6 @@
 import * as XLSX from 'xlsx';
 import React, { useState, useRef,useEffect } from 'react';
-import { Copy, ThumbsUp, ThumbsDown, Share, RefreshCw, MoreHorizontal } from "lucide-react";
+import { Copy,Check, ThumbsUp, ThumbsDown, Share, RefreshCw, MoreHorizontal, Download } from "lucide-react";
 import './App.css';
 
 function ChatApp({ user }) {
@@ -409,28 +409,42 @@ onChange={() => setDarkMode(!darkMode)}
         <div className="table-container">
           <div dangerouslySetInnerHTML={{ __html: msg.text }} />
           <div className="button-row">
-            <button
-              onClick={() => downloadTableAsCSV(idx)}
-              className="download-button"
-            >
-              Download Report
-            </button>
             {!isHello && (
               <div className="action-bar">
-              <Copy
-                className="action-icon"
-                onClick={() =>
-                  handleCopy(msg.text.replace(/<[^>]*>?/gm, ''), idx)
-                }
-              />
+              <div className="tooltip">  
+              <Download
+              className="action-icon"
+              onClick={() => downloadTableAsCSV(idx)}
+            />
+              <span className="tooltip-text">Download</span>
+            </div>                
+            <div className="tooltip">
+              {copiedIndex === idx ? (
+                <Check className="action-icon active" />
+              ) : (
+                <Copy
+                  className="action-icon"
+                  onClick={() => handleCopy(msg.text.replace(/<[^>]*>?/gm, ''), idx)}
+                />
+              )}
+              <span className="tooltip-text">
+                {copiedIndex === idx ? "Copied!" : "Copy"}
+              </span>
+            </div>
+            <div className="tooltip">  
               <ThumbsUp
                 className={`action-icon ${feedback[idx] === "up" ? "active" : ""}`}
                 onClick={() => handleFeedback(idx, "up")}
               />
+              <span className="tooltip-text">Good response</span>
+            </div>
+            <div className="tooltip">    
               <ThumbsDown
                 className={`action-icon ${feedback[idx] === "down" ? "active" : ""}`}
                 onClick={() => handleFeedback(idx, "down")}
               />
+              <span className="tooltip-text">Bad response</span>
+            </div>                
             </div>
             )}
           </div>
@@ -441,20 +455,33 @@ onChange={() => setDarkMode(!darkMode)}
           {isAssistant && !isHello && msg.finished && (
             <div className="button-row">
               <div className="action-bar">
-                <Copy
-                  className="action-icon"
-                  onClick={() =>
-                    handleCopy(msg.text.replace(/<[^>]*>?/gm, ''), idx)
-                  }
-                />
+              <div className="tooltip">
+                {copiedIndex === idx ? (
+                  <Check className="action-icon active" />
+                ) : (
+                  <Copy
+                    className="action-icon"
+                    onClick={() => handleCopy(msg.text.replace(/<[^>]*>?/gm, ''), idx)}
+                  />
+                )}
+                <span className="tooltip-text">
+                  {copiedIndex === idx ? "Copied!" : "Copy"}
+                </span>
+              </div>
+              <div className="tooltip">   
                 <ThumbsUp
                   className={`action-icon ${feedback[idx] === "up" ? "active" : ""}`}
                   onClick={() => handleFeedback(idx, "up")}
                 />
+                <span className="tooltip-text">Good response</span>
+              </div>
+              <div className="tooltip"> 
                 <ThumbsDown
                   className={`action-icon ${feedback[idx] === "down" ? "active" : ""}`}
                   onClick={() => handleFeedback(idx, "down")}
                 />
+                <span className="tooltip-text">Bad response</span>
+              </div>                 
               </div>
 
             </div>
