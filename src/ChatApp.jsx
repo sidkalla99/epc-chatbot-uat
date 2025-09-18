@@ -26,6 +26,22 @@ const [loading, setLoading] = useState(false);
 const handleFeedback = (index, type) => {
   setFeedback(prev => ({ ...prev, [index]: type }));
   console.log(`📊 Feedback for message ${index}:`, type);
+
+  // ✅ Send feedback only when clicked
+  if (wsRef.current?.readyState === 1) {
+    const payload = {
+      feedback: type,                              // "up" or "down"
+      responseText: messages[index].text,          // the assistant’s response being rated
+      sessionId: sessionIdRef.current,
+      userEmail: user?.attributes?.email,
+      username: user?.attributes?.email.split("@")[0],
+      timestamp: new Date().toISOString()
+    };
+
+    console.log("📤 Sending Feedback Payload:", payload);
+
+    wsRef.current.send(JSON.stringify(payload));
+  }
 };
   
 useEffect(() => {
