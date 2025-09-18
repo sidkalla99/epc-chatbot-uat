@@ -246,6 +246,9 @@ setMessages(prev => [...prev, { sender: 'user', text: userInput }]);
 setUserInput('');
 setLoading(true);
 
+console.log("userEmail:", user?.attributes?.email);
+console.log("username:", user?.username || user?.attributes?.email?.split("@")[0]);
+  
 wsRef.current.send(
 JSON.stringify({
 question:  userInput,
@@ -253,9 +256,6 @@ sessionId: sessionIdRef.current,
 userEmail: user?.attributes?.email,              // ✅ send real email
 username: user?.username || user?.attributes?.email.split("@")[0] // ✅ optional
 })
-  
-console.log("userEmail:", userEmail);
-console.log("username:", username);
 );
 };
 
