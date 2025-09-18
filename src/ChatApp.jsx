@@ -256,6 +256,8 @@ username: user?.username || user?.attributes?.email.split("@")[0] // ✅ optiona
 );
 };
 
+console.log("Email mentioned :", userEmail);
+console.log("Username :", username);
 
 // const sendMessage = async () => {
 //   if (!userInput.trim()) return;
