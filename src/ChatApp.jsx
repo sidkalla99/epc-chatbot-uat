@@ -59,28 +59,38 @@ console.log('✅ WebSocket connected');
 // };
 
 ws.onmessage = (evt) => {
-  let payload;
   try {
-    payload = JSON.parse(evt.data);
+    const { answer, error } = JSON.parse(evt.data); // ✅ inline destructure
+
+    if (error) {
+      setMessages(prev => [
+        ...prev,
+        { sender: 'Assistant', text: ` ${error}`, finished: true }
+      ]);
+      setLoading(false);
+      return;
+    }
+
+    if (!answer) {
+      console.warn("No answer field:", evt.data);
+      return;
+    }
+
+    setMessages(prev => [...prev, { sender: 'Assistant', text: '' }]);
+    typeText(answer, () => setLoading(false));
+
+    // (Optional) log the assistant response back
+    wsRef.current.send(
+      JSON.stringify({
+        agentResponse: answer,
+        sessionId: sessionIdRef.current,
+        userEmail: user?.attributes?.email,
+        username: user?.attributes?.email.split("@")[0]
+      })
+    );
   } catch (e) {
     console.warn("Non-JSON frame:", evt.data);
-    return;
   }
-
-  if (payload.error) {
-    // Display the error message as a response from Assistant
-    setMessages(prev => [...prev, { sender: 'Assistant', text: ` ${payload.error}`, finished: true }]);
-    setLoading(false);
-    return;
-  }
-
-  if (!payload.answer) {
-    console.warn("No answer field:", payload);
-    return;
-  }
-
-  setMessages(prev => [...prev, { sender: 'Assistant', text: '' }]);
-  typeText(payload.answer, () => setLoading(false));
 };
 
 ws.onclose = () => {
