@@ -416,15 +416,22 @@ onChange={() => setDarkMode(!darkMode)}
               Download Report
             </button>
             {!isHello && (
-              <button
+              <div className="action-bar">
+              <Copy
+                className="action-icon"
                 onClick={() =>
                   handleCopy(msg.text.replace(/<[^>]*>?/gm, ''), idx)
                 }
-                className="copy-button"
-                disabled={copiedIndex === idx}
-              >
-                {copiedIndex === idx ? "Copied!" : "Copy"}
-              </button>
+              />
+              <ThumbsUp
+                className={`action-icon ${feedback[idx] === "up" ? "active" : ""}`}
+                onClick={() => handleFeedback(idx, "up")}
+              />
+              <ThumbsDown
+                className={`action-icon ${feedback[idx] === "down" ? "active" : ""}`}
+                onClick={() => handleFeedback(idx, "down")}
+              />
+            </div>
             )}
           </div>
         </div>
@@ -433,16 +440,6 @@ onChange={() => setDarkMode(!darkMode)}
           <div dangerouslySetInnerHTML={{ __html: msg.text }} />
           {isAssistant && !isHello && msg.finished && (
             <div className="button-row">
-              <button
-                onClick={() =>
-                  handleCopy(msg.text.replace(/<[^>]*>?/gm, ''), idx)
-                }
-                className="copy-button"
-                disabled={copiedIndex === idx}
-              >
-                {copiedIndex === idx ? "Copied!" : "Copy"}
-              </button>
-          
               <div className="action-bar">
                 <Copy
                   className="action-icon"
@@ -458,15 +455,6 @@ onChange={() => setDarkMode(!darkMode)}
                   className={`action-icon ${feedback[idx] === "down" ? "active" : ""}`}
                   onClick={() => handleFeedback(idx, "down")}
                 />
-                <Share
-                  className="action-icon"
-                  onClick={() => console.log("📤 Share clicked", idx)}
-                />
-                <RefreshCw
-                  className="action-icon"
-                  onClick={() => console.log("🔄 Refresh clicked", idx)}
-                />
-                <MoreHorizontal className="action-icon" />
               </div>
 
             </div>
