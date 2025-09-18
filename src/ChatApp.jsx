@@ -2,7 +2,7 @@ import * as XLSX from 'xlsx';
 import React, { useState, useRef,useEffect } from 'react';
 import './App.css';
 
-function ChatApp() {
+function ChatApp({ user }) {
 const sessionIdRef = useRef(crypto.randomUUID());
 const [copiedIndex, setCopiedIndex] = useState(null);
 
@@ -249,7 +249,9 @@ setLoading(true);
 wsRef.current.send(
 JSON.stringify({
 question:  userInput,
-sessionId: sessionIdRef.current
+sessionId: sessionIdRef.current,
+userEmail: user?.attributes?.email,              // ✅ send real email
+username: user?.username || user?.attributes?.email.split("@")[0] // ✅ optional
 })
 );
 };
