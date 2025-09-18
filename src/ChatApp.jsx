@@ -1,5 +1,6 @@
 import * as XLSX from 'xlsx';
 import React, { useState, useRef,useEffect } from 'react';
+import { Copy, ThumbsUp, ThumbsDown, Share, RefreshCw, MoreHorizontal } from "lucide-react";
 import './App.css';
 
 function ChatApp({ user }) {
