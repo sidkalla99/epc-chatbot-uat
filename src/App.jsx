@@ -25,7 +25,7 @@ function SessionWrapper({ user, signOut }) {
           <h2>Welcome, {user?.attributes?.email}</h2>
           <button onClick={signOut}>Sign Out</button>
         </div>
-        <ChatApp />
+        <ChatApp user={user} />
       </div>
     </main>
   );
