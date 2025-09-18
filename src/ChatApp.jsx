@@ -253,11 +253,11 @@ sessionId: sessionIdRef.current,
 userEmail: user?.attributes?.email,              // ✅ send real email
 username: user?.username || user?.attributes?.email.split("@")[0] // ✅ optional
 })
+  
+console.log("userEmail:", userEmail);
+console.log("username:", username);
 );
 };
-
-console.log("Email mentioned :", userEmail);
-console.log("Username :", username);
 
 // const sendMessage = async () => {
 //   if (!userInput.trim()) return;
