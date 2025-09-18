@@ -78,7 +78,14 @@ ws.onmessage = (evt) => {
 
     setMessages(prev => [...prev, { sender: 'Assistant', text: '' }]);
     typeText(answer, () => setLoading(false));
-
+    console.log("📤 Sending Question Payload:", {
+      question: userInput,
+      sessionId: sessionIdRef.current,
+      userEmail: user?.attributes?.email,
+      username: user?.attributes?.email.split("@")[0],
+      timestamp: new Date().toISOString()
+    });
+    
     // (Optional) log the assistant response back
     wsRef.current.send(
       JSON.stringify({
