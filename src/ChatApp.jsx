@@ -6,7 +6,8 @@ import './App.css';
 function ChatApp({ user }) {
 const sessionIdRef = useRef(crypto.randomUUID());
 const [copiedIndex, setCopiedIndex] = useState(null);
-
+const [feedback, setFeedback] = useState({});
+  
 // ➕ NEW: keep the socket instance
 const copyToClipboard = (text) => {
   navigator.clipboard.writeText(text).then(() => {
@@ -22,7 +23,11 @@ const [messages, setMessages] = useState([
 const [userInput, setUserInput] = useState('');
 const [darkMode, setDarkMode] = useState(true);
 const [loading, setLoading] = useState(false);
-
+const handleFeedback = (index, type) => {
+  setFeedback(prev => ({ ...prev, [index]: type }));
+  console.log(`📊 Feedback for message ${index}:`, type);
+};
+  
 useEffect(() => {
 let ws;
 let reconnectTimer;
@@ -438,19 +443,32 @@ onChange={() => setDarkMode(!darkMode)}
                 {copiedIndex === idx ? "Copied!" : "Copy"}
               </button>
           
-              {/* 👍 👎 Feedback buttons */}
-              <button
-                className="feedback-button"
-                onClick={() => handleFeedback(idx, "up")}
-              >
-                👍
-              </button>
-              <button
-                className="feedback-button"
-                onClick={() => handleFeedback(idx, "down")}
-              >
-                👎
-              </button>
+              <div className="action-bar">
+                <Copy
+                  className="action-icon"
+                  onClick={() =>
+                    handleCopy(msg.text.replace(/<[^>]*>?/gm, ''), idx)
+                  }
+                />
+                <ThumbsUp
+                  className={`action-icon ${feedback[idx] === "up" ? "active" : ""}`}
+                  onClick={() => handleFeedback(idx, "up")}
+                />
+                <ThumbsDown
+                  className={`action-icon ${feedback[idx] === "down" ? "active" : ""}`}
+                  onClick={() => handleFeedback(idx, "down")}
+                />
+                <Share
+                  className="action-icon"
+                  onClick={() => console.log("📤 Share clicked", idx)}
+                />
+                <RefreshCw
+                  className="action-icon"
+                  onClick={() => console.log("🔄 Refresh clicked", idx)}
+                />
+                <MoreHorizontal className="action-icon" />
+              </div>
+
             </div>
           )}
         </div>
