@@ -246,8 +246,6 @@ setMessages(prev => [...prev, { sender: 'user', text: userInput }]);
 setUserInput('');
 setLoading(true);
 
-console.log("userEmail:", user?.attributes?.email);
-console.log("username:", user?.attributes?.email?.split("@")[0]);
   
 wsRef.current.send(
 JSON.stringify({
@@ -428,15 +426,31 @@ onChange={() => setDarkMode(!darkMode)}
         <div>
           <div dangerouslySetInnerHTML={{ __html: msg.text }} />
           {isAssistant && !isHello && msg.finished && (
-            <button
-              onClick={() =>
-                handleCopy(msg.text.replace(/<[^>]*>?/gm, ''), idx)
-              }
-              className="copy-button"
-              disabled={copiedIndex === idx}
-            >
-              {copiedIndex === idx ? "Copied!" : "Copy"}
-            </button>
+            <div className="button-row">
+              <button
+                onClick={() =>
+                  handleCopy(msg.text.replace(/<[^>]*>?/gm, ''), idx)
+                }
+                className="copy-button"
+                disabled={copiedIndex === idx}
+              >
+                {copiedIndex === idx ? "Copied!" : "Copy"}
+              </button>
+          
+              {/* 👍 👎 Feedback buttons */}
+              <button
+                className="feedback-button"
+                onClick={() => handleFeedback(idx, "up")}
+              >
+                👍
+              </button>
+              <button
+                className="feedback-button"
+                onClick={() => handleFeedback(idx, "down")}
+              >
+                👎
+              </button>
+            </div>
           )}
         </div>
       )}
