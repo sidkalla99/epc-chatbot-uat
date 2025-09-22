@@ -92,8 +92,20 @@ ws.onmessage = (evt) => {
       return;
     }
 
-    setMessages(prev => [...prev, { sender: 'Assistant', text: '' }]);
-    typeText(answer, () => setLoading(false));
+    /// setMessages(prev => [...prev, { sender: 'Assistant', text: '' }]);
+    /// typeText(answer, () => setLoading(false));
+    if (answer.includes("<table")) {
+      console.log("📊 Detected HTML table. Skipping animation.");
+      setMessages(prev => [
+        ...prev,
+        { sender: 'Assistant', text: answer, finished: true }
+      ]);
+      setLoading(false);
+    } else {
+      console.log("💬 No table detected. Typing response...");
+      setMessages(prev => [...prev, { sender: 'Assistant', text: '' }]);
+      typeText(answer, () => setLoading(false));
+    }
     console.log("📤 Sending Question Payload:", {
       question: userInput,
       sessionId: sessionIdRef.current,
