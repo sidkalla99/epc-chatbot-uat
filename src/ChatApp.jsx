@@ -30,6 +30,7 @@ const handleFeedback = (index, type) => {
   // ✅ Send feedback only when clicked
   if (wsRef.current?.readyState === 1) {
     const payload = {
+      chatKey: messages[index].chatKey,
       feedback: type,                              // "up" or "down"
       responseText: messages[index].text,          // the assistant’s response being rated
       sessionId: sessionIdRef.current,
@@ -76,7 +77,7 @@ console.log('✅ WebSocket connected');
 
 ws.onmessage = (evt) => {
   try {
-    const { answer, error } = JSON.parse(evt.data); // ✅ inline destructure
+    const { answer, error, chatKey } = JSON.parse(evt.data); // 👈 also destructure chatKey
 
     if (error) {
       setMessages(prev => [
@@ -92,7 +93,12 @@ ws.onmessage = (evt) => {
       return;
     }
 
-    setMessages(prev => [...prev, { sender: 'Assistant', text: '' }]);
+    // ✅ Store chatKey with this Assistant message
+    setMessages(prev => [
+      ...prev,
+      { sender: 'Assistant', text: '', chatKey }  // 👈 include chatKey here
+    ]);
+
     typeText(answer, () => setLoading(false));
     console.log("📤 Sending Question Payload:", {
       question: userInput,
