@@ -114,6 +114,7 @@ ws.onmessage = (evt) => {
 
   // 🔹 Partial streaming chunk
   if (payload.partial) {
+    console.log("📩 Partial chunk received:", payload.partial);
     setMessages(prev => {
       const updated = [...prev];
       const last = updated[updated.length - 1];
