@@ -75,89 +75,24 @@ console.log('✅ WebSocket connected');
 // typeText(payload.answer, () => setLoading(false));
 // };
 
-// ws.onmessage = (evt) => {
-//   try {
-//     const { answer, error, chatKey } = JSON.parse(evt.data); // 👈 also destructure chatKey
-
-//     if (error) {
-//       setMessages(prev => [
-//         ...prev,
-//         { sender: 'Assistant', text: ` ${error}`, finished: true }
-//       ]);
-//       setLoading(false);
-//       return;
-//     }
-
-//     if (!answer) {
-//       console.warn("No answer field:", evt.data);
-//       return;
-//     }
-
 ws.onmessage = (evt) => {
   try {
-    const payload = JSON.parse(evt.data);
+    const { answer, error, chatKey } = JSON.parse(evt.data); // 👈 also destructure chatKey
 
-    // 🔹 Error case
-    if (payload.error) {
+    if (error) {
       setMessages(prev => [
         ...prev,
-        { sender: 'Assistant', text: `⚠️ ${payload.error}`, finished: true }
+        { sender: 'Assistant', text: ` ${error}`, finished: true }
       ]);
       setLoading(false);
       return;
     }
 
-    // 🔹 Partial chunks (streaming)
-    if (payload.partial) {
-      setMessages(prev => {
-        const updated = [...prev];
-        const last = updated[updated.length - 1];
-
-        if (last?.sender === 'Assistant' && !last.finished) {
-          // append partial to existing Assistant message
-          updated[updated.length - 1] = {
-            ...last,
-            text: last.text + payload.partial
-          };
-        } else {
-          // start a new Assistant message if none exists
-          updated.push({ sender: 'Assistant', text: payload.partial, finished: false });
-        }
-        return updated;
-      });
-      return; // ✅ don't fall through
+    if (!answer) {
+      console.warn("No answer field:", evt.data);
+      return;
     }
 
-    // 🔹 Final answer
-    if (payload.answer) {
-      setMessages(prev => {
-        const updated = [...prev];
-        const last = updated[updated.length - 1];
-
-        if (last?.sender === 'Assistant' && !last.finished) {
-          updated[updated.length - 1] = {
-            ...last,
-            text: payload.answer,
-            chatKey: payload.chatKey,
-            finished: true
-          };
-        } else {
-          updated.push({
-            sender: 'Assistant',
-            text: payload.answer,
-            chatKey: payload.chatKey,
-            finished: true
-          });
-        }
-        return updated;
-      });
-      setLoading(false);
-    }
-
-  } catch (e) {
-    console.warn("Non-JSON frame:", evt.data);
-  }
-};
 
     // ✅ Store chatKey with this Assistant message
     setMessages(prev => [
