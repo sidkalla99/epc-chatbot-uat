@@ -7,6 +7,9 @@ function ChatApp({ user }) {
 const sessionIdRef = useRef(crypto.randomUUID());
 const [copiedIndex, setCopiedIndex] = useState(null);
 const [feedback, setFeedback] = useState({});
+// ✅ Move these here
+const typingBufferRef = useRef('');
+const typingIntervalRef = useRef(null);
   
 // ➕ NEW: keep the socket instance
 const copyToClipboard = (text) => {
@@ -122,10 +125,6 @@ console.log('✅ WebSocket connected');
 //   }
 // };
 
-// 🔹 Typing buffer + interval to simulate character-by-character streaming
-const typingBufferRef = useRef('');
-let typingInterval = null;
-
 ws.onmessage = (evt) => {
   let payload;
   try {
@@ -145,13 +144,12 @@ ws.onmessage = (evt) => {
     return;
   }
 
-  // 🔹 Partial streaming chunk (animate it)
+  // 🔹 Partial streaming chunk
   if (payload.partial) {
-    const chunk = payload.partial;
-    typingBufferRef.current += chunk; // add new text into buffer
+    typingBufferRef.current += payload.partial;
 
-    if (!typingInterval) {
-      typingInterval = setInterval(() => {
+    if (!typingIntervalRef.current) {
+      typingIntervalRef.current = setInterval(() => {
         if (typingBufferRef.current.length > 0) {
           const nextChar = typingBufferRef.current[0];
           typingBufferRef.current = typingBufferRef.current.slice(1);
@@ -171,20 +169,20 @@ ws.onmessage = (evt) => {
             return updated;
           });
         } else {
-          clearInterval(typingInterval);
-          typingInterval = null;
+          clearInterval(typingIntervalRef.current);
+          typingIntervalRef.current = null;
         }
-      }, 20); // typing speed in ms per char
+      }, 20); // speed per character
     }
     return;
   }
 
-  // 🔹 Final answer (mark as finished, stop animation)
+  // 🔹 Final answer
   if (payload.answer) {
-    // clear any running typing interval
-    if (typingInterval) {
-      clearInterval(typingInterval);
-      typingInterval = null;
+    // stop interval
+    if (typingIntervalRef.current) {
+      clearInterval(typingIntervalRef.current);
+      typingIntervalRef.current = null;
       typingBufferRef.current = '';
     }
 
