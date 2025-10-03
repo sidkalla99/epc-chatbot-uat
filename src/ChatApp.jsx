@@ -75,53 +75,121 @@ console.log('✅ WebSocket connected');
 // typeText(payload.answer, () => setLoading(false));
 // };
 
+// ws.onmessage = (evt) => {
+//   try {
+//     const { answer, error, chatKey } = JSON.parse(evt.data); // 👈 also destructure chatKey
+
+//     if (error) {
+//       setMessages(prev => [
+//         ...prev,
+//         { sender: 'Assistant', text: ` ${error}`, finished: true }
+//       ]);
+//       setLoading(false);
+//       return;
+//     }
+
+//     if (!answer) {
+//       console.warn("No answer field:", evt.data);
+//       return;
+//     }
+
 ws.onmessage = (evt) => {
+  let payload;
   try {
-    const { answer, error, chatKey } = JSON.parse(evt.data); // 👈 also destructure chatKey
+    payload = JSON.parse(evt.data);
+  } catch (e) {
+    console.warn("Non-JSON frame:", evt.data);
+    return;
+  }
 
-    if (error) {
-      setMessages(prev => [
-        ...prev,
-        { sender: 'Assistant', text: ` ${error}`, finished: true }
-      ]);
-      setLoading(false);
-      return;
-    }
+  // 🔹 Error from backend
+  if (payload.error) {
+    setMessages(prev => [
+      ...prev,
+      { sender: 'Assistant', text: `⚠️ ${payload.error}`, finished: true }
+    ]);
+    setLoading(false);
+    return;
+  }
 
-    if (!answer) {
-      console.warn("No answer field:", evt.data);
-      return;
-    }
+  // 🔹 Partial streaming chunk
+  if (payload.partial) {
+    setMessages(prev => {
+      const updated = [...prev];
+      const last = updated[updated.length - 1];
+
+      if (last?.sender === 'Assistant' && !last.finished) {
+        updated[updated.length - 1] = {
+          ...last,
+          text: (last.text || '') + payload.partial
+        };
+      } else {
+        updated.push({ sender: 'Assistant', text: payload.partial, finished: false });
+      }
+      return updated;
+    });
+    return;
+  }
+
+  // 🔹 Final answer
+  if (payload.answer) {
+    setMessages(prev => {
+      const updated = [...prev];
+      const last = updated[updated.length - 1];
+
+      if (last?.sender === 'Assistant' && !last.finished) {
+        updated[updated.length - 1] = {
+          ...last,
+          text: payload.answer,
+          chatKey: payload.chatKey,
+          finished: true
+        };
+      } else {
+        updated.push({
+          sender: 'Assistant',
+          text: payload.answer,
+          chatKey: payload.chatKey,
+          finished: true
+        });
+      }
+      return updated;
+    });
+    setLoading(false);
+    return;
+  }
+
+  console.warn("Unknown message type:", payload);
+};
 
 
     // ✅ Store chatKey with this Assistant message
-    setMessages(prev => [
-      ...prev,
-      { sender: 'Assistant', text: '', chatKey }  // 👈 include chatKey here
-    ]);
+//     setMessages(prev => [
+//       ...prev,
+//       { sender: 'Assistant', text: '', chatKey }  // 👈 include chatKey here
+//     ]);
 
-    typeText(answer, () => setLoading(false));
-    console.log("📤 Sending Question Payload:", {
-      question: userInput,
-      sessionId: sessionIdRef.current,
-      userEmail: user?.attributes?.email,
-      username: user?.attributes?.email.split("@")[0],
-      timestamp: new Date().toISOString()
-    });
+//     typeText(answer, () => setLoading(false));
+//     console.log("📤 Sending Question Payload:", {
+//       question: userInput,
+//       sessionId: sessionIdRef.current,
+//       userEmail: user?.attributes?.email,
+//       username: user?.attributes?.email.split("@")[0],
+//       timestamp: new Date().toISOString()
+//     });
     
-    // (Optional) log the assistant response back
-    wsRef.current.send(
-      JSON.stringify({
-        agentResponse: answer,
-        sessionId: sessionIdRef.current,
-        userEmail: user?.attributes?.email,
-        username: user?.attributes?.email.split("@")[0]
-      })
-    );
-  } catch (e) {
-    console.warn("Non-JSON frame:", evt.data);
-  }
-};
+//     // (Optional) log the assistant response back
+//     wsRef.current.send(
+//       JSON.stringify({
+//         agentResponse: answer,
+//         sessionId: sessionIdRef.current,
+//         userEmail: user?.attributes?.email,
+//         username: user?.attributes?.email.split("@")[0]
+//       })
+//     );
+//   } catch (e) {
+//     console.warn("Non-JSON frame:", evt.data);
+//   }
+// };
 
 ws.onclose = () => {
 console.warn("🔌 WebSocket closed, retrying in 3 seconds...");
