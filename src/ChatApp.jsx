@@ -93,6 +93,35 @@ console.log('✅ WebSocket connected');
 //       return;
 //     }
 
+    // ✅ Store chatKey with this Assistant message
+//     setMessages(prev => [
+//       ...prev,
+//       { sender: 'Assistant', text: '', chatKey }  // 👈 include chatKey here
+//     ]);
+
+//     typeText(answer, () => setLoading(false));
+//     console.log("📤 Sending Question Payload:", {
+//       question: userInput,
+//       sessionId: sessionIdRef.current,
+//       userEmail: user?.attributes?.email,
+//       username: user?.attributes?.email.split("@")[0],
+//       timestamp: new Date().toISOString()
+//     });
+    
+//     // (Optional) log the assistant response back
+//     wsRef.current.send(
+//       JSON.stringify({
+//         agentResponse: answer,
+//         sessionId: sessionIdRef.current,
+//         userEmail: user?.attributes?.email,
+//         username: user?.attributes?.email.split("@")[0]
+//       })
+//     );
+//   } catch (e) {
+//     console.warn("Non-JSON frame:", evt.data);
+//   }
+// };
+
 ws.onmessage = (evt) => {
   let payload;
   try {
@@ -102,7 +131,7 @@ ws.onmessage = (evt) => {
     return;
   }
 
-  // 🔹 Error from backend
+  // 🔹 Error message
   if (payload.error) {
     setMessages(prev => [
       ...prev,
@@ -114,17 +143,18 @@ ws.onmessage = (evt) => {
 
   // 🔹 Partial streaming chunk
   if (payload.partial) {
-    console.log("📩 Partial chunk received:", payload.partial);
     setMessages(prev => {
       const updated = [...prev];
       const last = updated[updated.length - 1];
 
       if (last?.sender === 'Assistant' && !last.finished) {
+        // append to existing Assistant bubble
         updated[updated.length - 1] = {
           ...last,
-          text: (last.text || '') + payload.partial
+          text: last.text + payload.partial
         };
       } else {
+        // start a new Assistant bubble
         updated.push({ sender: 'Assistant', text: payload.partial, finished: false });
       }
       return updated;
@@ -158,39 +188,7 @@ ws.onmessage = (evt) => {
     setLoading(false);
     return;
   }
-
-  console.warn("Unknown message type:", payload);
 };
-
-
-    // ✅ Store chatKey with this Assistant message
-//     setMessages(prev => [
-//       ...prev,
-//       { sender: 'Assistant', text: '', chatKey }  // 👈 include chatKey here
-//     ]);
-
-//     typeText(answer, () => setLoading(false));
-//     console.log("📤 Sending Question Payload:", {
-//       question: userInput,
-//       sessionId: sessionIdRef.current,
-//       userEmail: user?.attributes?.email,
-//       username: user?.attributes?.email.split("@")[0],
-//       timestamp: new Date().toISOString()
-//     });
-    
-//     // (Optional) log the assistant response back
-//     wsRef.current.send(
-//       JSON.stringify({
-//         agentResponse: answer,
-//         sessionId: sessionIdRef.current,
-//         userEmail: user?.attributes?.email,
-//         username: user?.attributes?.email.split("@")[0]
-//       })
-//     );
-//   } catch (e) {
-//     console.warn("Non-JSON frame:", evt.data);
-//   }
-// };
 
 ws.onclose = () => {
 console.warn("🔌 WebSocket closed, retrying in 3 seconds...");
