@@ -7,9 +7,7 @@ function ChatApp({ user }) {
 const sessionIdRef = useRef(crypto.randomUUID());
 const [copiedIndex, setCopiedIndex] = useState(null);
 const [feedback, setFeedback] = useState({});
-// ✅ Move these here
-const typingBufferRef = useRef('');
-const typingIntervalRef = useRef(null);
+
   
 // ➕ NEW: keep the socket instance
 const copyToClipboard = (text) => {
@@ -78,140 +76,51 @@ console.log('✅ WebSocket connected');
 // typeText(payload.answer, () => setLoading(false));
 // };
 
-// ws.onmessage = (evt) => {
-//   try {
-//     const { answer, error, chatKey } = JSON.parse(evt.data); // 👈 also destructure chatKey
-
-//     if (error) {
-//       setMessages(prev => [
-//         ...prev,
-//         { sender: 'Assistant', text: ` ${error}`, finished: true }
-//       ]);
-//       setLoading(false);
-//       return;
-//     }
-
-//     if (!answer) {
-//       console.warn("No answer field:", evt.data);
-//       return;
-//     }
-
-    // ✅ Store chatKey with this Assistant message
-//     setMessages(prev => [
-//       ...prev,
-//       { sender: 'Assistant', text: '', chatKey }  // 👈 include chatKey here
-//     ]);
-
-//     typeText(answer, () => setLoading(false));
-//     console.log("📤 Sending Question Payload:", {
-//       question: userInput,
-//       sessionId: sessionIdRef.current,
-//       userEmail: user?.attributes?.email,
-//       username: user?.attributes?.email.split("@")[0],
-//       timestamp: new Date().toISOString()
-//     });
-    
-//     // (Optional) log the assistant response back
-//     wsRef.current.send(
-//       JSON.stringify({
-//         agentResponse: answer,
-//         sessionId: sessionIdRef.current,
-//         userEmail: user?.attributes?.email,
-//         username: user?.attributes?.email.split("@")[0]
-//       })
-//     );
-//   } catch (e) {
-//     console.warn("Non-JSON frame:", evt.data);
-//   }
-// };
-
 ws.onmessage = (evt) => {
-  let payload;
   try {
-    payload = JSON.parse(evt.data);
-  } catch (e) {
-    console.warn("Non-JSON frame:", evt.data);
-    return;
-  }
+    const { answer, error, chatKey } = JSON.parse(evt.data); // 👈 also destructure chatKey
 
-  // 🔹 Error from backend
-  if (payload.error) {
+    if (error) {
+      setMessages(prev => [
+        ...prev,
+        { sender: 'Assistant', text: ` ${error}`, finished: true }
+      ]);
+      setLoading(false);
+      return;
+    }
+
+    if (!answer) {
+      console.warn("No answer field:", evt.data);
+      return;
+    }
+
+    ✅ Store chatKey with this Assistant message
     setMessages(prev => [
       ...prev,
-      { sender: 'Assistant', text: `⚠️ ${payload.error}`, finished: true }
+      { sender: 'Assistant', text: '', chatKey }  // 👈 include chatKey here
     ]);
-    setLoading(false);
-    return;
-  }
 
-  // 🔹 Partial streaming chunk
-  if (payload.partial) {
-    typingBufferRef.current += payload.partial;
-
-    if (!typingIntervalRef.current) {
-      typingIntervalRef.current = setInterval(() => {
-        if (typingBufferRef.current.length > 0) {
-          const nextChar = typingBufferRef.current[0];
-          typingBufferRef.current = typingBufferRef.current.slice(1);
-
-          setMessages(prev => {
-            const updated = [...prev];
-            const last = updated[updated.length - 1];
-
-            if (last?.sender === 'Assistant' && !last.finished) {
-              updated[updated.length - 1] = {
-                ...last,
-                text: last.text + nextChar
-              };
-            } else {
-              updated.push({ sender: 'Assistant', text: nextChar, finished: false });
-            }
-            return updated;
-          });
-        } else {
-          clearInterval(typingIntervalRef.current);
-          typingIntervalRef.current = null;
-        }
-      }, 20); // speed per character
-    }
-    return;
-  }
-
-  // 🔹 Final answer
-  if (payload.answer) {
-    // stop interval
-    if (typingIntervalRef.current) {
-      clearInterval(typingIntervalRef.current);
-      typingIntervalRef.current = null;
-      typingBufferRef.current = '';
-    }
-
-    setMessages(prev => {
-      const updated = [...prev];
-      const last = updated[updated.length - 1];
-
-      if (last?.sender === 'Assistant' && !last.finished) {
-        updated[updated.length - 1] = {
-          ...last,
-          text: payload.answer,
-          chatKey: payload.chatKey,
-          finished: true
-        };
-      } else {
-        updated.push({
-          sender: 'Assistant',
-          text: payload.answer,
-          chatKey: payload.chatKey,
-          finished: true
-        });
-      }
-      return updated;
+    typeText(answer, () => setLoading(false));
+    console.log("📤 Sending Question Payload:", {
+      question: userInput,
+      sessionId: sessionIdRef.current,
+      userEmail: user?.attributes?.email,
+      username: user?.attributes?.email.split("@")[0],
+      timestamp: new Date().toISOString()
     });
-    setLoading(false);
-    return;
+    
+    // (Optional) log the assistant response back
+    wsRef.current.send(
+      JSON.stringify({
+        agentResponse: answer,
+        sessionId: sessionIdRef.current,
+        userEmail: user?.attributes?.email,
+        username: user?.attributes?.email.split("@")[0]
+      })
+    );
+  } catch (e) {
+    console.warn("Non-JSON frame:", evt.data);
   }
-
-  console.warn("Unknown message type:", payload);
 };
 
 
