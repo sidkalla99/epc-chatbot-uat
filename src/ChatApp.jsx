@@ -94,7 +94,7 @@ ws.onmessage = (evt) => {
       return;
     }
 
-    ✅ Store chatKey with this Assistant message
+    //✅ Store chatKey with this Assistant message
     setMessages(prev => [
       ...prev,
       { sender: 'Assistant', text: '', chatKey }  // 👈 include chatKey here
