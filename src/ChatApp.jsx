@@ -122,6 +122,10 @@ console.log('✅ WebSocket connected');
 //   }
 // };
 
+// 🔹 Typing buffer + interval to simulate character-by-character streaming
+const typingBufferRef = useRef('');
+let typingInterval = null;
+
 ws.onmessage = (evt) => {
   let payload;
   try {
@@ -131,7 +135,7 @@ ws.onmessage = (evt) => {
     return;
   }
 
-  // 🔹 Error message
+  // 🔹 Error from backend
   if (payload.error) {
     setMessages(prev => [
       ...prev,
@@ -141,29 +145,49 @@ ws.onmessage = (evt) => {
     return;
   }
 
-  // 🔹 Partial streaming chunk
+  // 🔹 Partial streaming chunk (animate it)
   if (payload.partial) {
-    setMessages(prev => {
-      const updated = [...prev];
-      const last = updated[updated.length - 1];
+    const chunk = payload.partial;
+    typingBufferRef.current += chunk; // add new text into buffer
 
-      if (last?.sender === 'Assistant' && !last.finished) {
-        // append to existing Assistant bubble
-        updated[updated.length - 1] = {
-          ...last,
-          text: last.text + payload.partial
-        };
-      } else {
-        // start a new Assistant bubble
-        updated.push({ sender: 'Assistant', text: payload.partial, finished: false });
-      }
-      return updated;
-    });
+    if (!typingInterval) {
+      typingInterval = setInterval(() => {
+        if (typingBufferRef.current.length > 0) {
+          const nextChar = typingBufferRef.current[0];
+          typingBufferRef.current = typingBufferRef.current.slice(1);
+
+          setMessages(prev => {
+            const updated = [...prev];
+            const last = updated[updated.length - 1];
+
+            if (last?.sender === 'Assistant' && !last.finished) {
+              updated[updated.length - 1] = {
+                ...last,
+                text: last.text + nextChar
+              };
+            } else {
+              updated.push({ sender: 'Assistant', text: nextChar, finished: false });
+            }
+            return updated;
+          });
+        } else {
+          clearInterval(typingInterval);
+          typingInterval = null;
+        }
+      }, 20); // typing speed in ms per char
+    }
     return;
   }
 
-  // 🔹 Final answer
+  // 🔹 Final answer (mark as finished, stop animation)
   if (payload.answer) {
+    // clear any running typing interval
+    if (typingInterval) {
+      clearInterval(typingInterval);
+      typingInterval = null;
+      typingBufferRef.current = '';
+    }
+
     setMessages(prev => {
       const updated = [...prev];
       const last = updated[updated.length - 1];
@@ -188,7 +212,10 @@ ws.onmessage = (evt) => {
     setLoading(false);
     return;
   }
+
+  console.warn("Unknown message type:", payload);
 };
+
 
 ws.onclose = () => {
 console.warn("🔌 WebSocket closed, retrying in 3 seconds...");
