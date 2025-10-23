@@ -27,25 +27,38 @@ function HistoryPage({ user }) {
       .finally(() => setLoading(false));
   }, [user]);
 
-  if (loading) return <div style={{ padding: 20 }}>🔄 Loading chat history...</div>;
-  if (error) return <div style={{ padding: 20, color: 'red' }}>{error}</div>;
+  if (loading) return <div className="history-page">🔄 Loading chat history...</div>;
+  if (error) return <div className="history-page error">{error}</div>;
 
   return (
-    <div style={{ padding: 20 }}>
-      <h2>🕑 Chat History</h2>
-      {chatHistory.length === 0 ? (
-        <p>No chat history found for {user?.attributes?.email}.</p>
-      ) : (
-        chatHistory.map((entry, idx) => (
-          <div key={idx} style={{ marginBottom: '20px', borderBottom: '1px solid #ccc', paddingBottom: '10px' }}>
-            <div><strong>You:</strong> {entry.prompt}</div>
-            <div><strong>Zelo:</strong> <span dangerouslySetInnerHTML={{ __html: entry.agent_response }} /></div>
-            <div style={{ fontSize: '0.85em', color: '#666' }}>
-              {new Date(entry.request_timestamp_utc).toLocaleString()} {entry.rating === 1 && '👍'} {entry.rating === -1 && '👎'}
+    <div className="history-page">
+      <header className="history-header">
+        🕑 Chat History
+      </header>
+      <div className="history-scroll-area">
+        {chatHistory.length === 0 ? (
+          <p>No chat history found for {user?.attributes?.email}.</p>
+        ) : (
+          chatHistory.map((entry, idx) => (
+            <div
+              key={idx}
+              className="history-entry"
+              style={{
+                marginBottom: '20px',
+                borderBottom: '1px solid #333',
+                paddingBottom: '10px'
+              }}
+            >
+              <div><strong>You:</strong> {entry.prompt}</div>
+              <div><strong>Zelo:</strong> <span dangerouslySetInnerHTML={{ __html: entry.agent_response }} /></div>
+              <div style={{ fontSize: '0.85em', color: '#aaa' }}>
+                {new Date(entry.request_timestamp_utc).toLocaleString()}{" "}
+                {entry.rating === 1 && '👍'}{entry.rating === -1 && '👎'}
+              </div>
             </div>
-          </div>
-        ))
-      )}
+          ))
+        )}
+      </div>
     </div>
   );
 }
