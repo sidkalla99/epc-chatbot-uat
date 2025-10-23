@@ -24,6 +24,8 @@ const [messages, setMessages] = useState([
 const [userInput, setUserInput] = useState('');
 const [darkMode, setDarkMode] = useState(true);
 const [loading, setLoading] = useState(false);
+const [historyTabActive, setHistoryTabActive] = useState(false);
+const [chatHistory, setChatHistory] = useState([]);
 const handleFeedback = (index, type) => {
   setFeedback(prev => ({ ...prev, [index]: type }));
   console.log(`📊 Feedback for message ${index}:`, type);
@@ -343,6 +345,12 @@ username: user?.attributes?.email.split("@")[0]  // ✅ optional
 //   }
 // };
 
+const fetchHistory = async () => {
+  const res = await fetch(`https://fgi3msvj1m.execute-api.eu-central-1.amazonaws.com/dev/get-history?user_email=${user?.attributes?.email}`);
+  const data = await res.json();
+  setChatHistory(data);
+};
+  
 const handleKeyDown = (e) => {
 if (e.key === 'Enter') sendMessage();
 };
@@ -423,6 +431,23 @@ return (
 <div className="chat-container">
 <div className="header">
 <h1>Zelo</h1>
+<button
+  onClick={() => {
+    setHistoryTabActive(!historyTabActive);
+    if (!historyTabActive) fetchHistory(); // Fetch only on open
+  }}    
+  style={{
+      marginLeft: '1rem',
+      backgroundColor: 'transparent',
+      border: '1px solid #ccc',
+      padding: '6px 10px',
+      borderRadius: '6px',
+      cursor: 'pointer',
+      color: darkMode ? 'white' : 'black'
+    }}
+>
+  {historyTabActive ? "Back to Chat" : "View History"}
+</button>
 <label className="switch">
 <input
 type="checkbox"
@@ -434,6 +459,18 @@ onChange={() => setDarkMode(!darkMode)}
 </div>
 
 <div className="chat-box">
+{!historyTabActive && (
+  <div className="input-box">
+    <input
+      type="text"
+      value={userInput}
+      onChange={(e) => setUserInput(e.target.value)}
+      onKeyDown={handleKeyDown}
+      placeholder="Type your query here..."
+    />
+    <button onClick={sendMessage}>Send</button>
+  </div>
+)}
 {messages.map((msg, idx) => {
   const isHello = msg.text.toLowerCase().includes("hello");
   const isAssistant = msg.sender === 'Assistant';
