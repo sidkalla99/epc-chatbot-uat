@@ -68,6 +68,7 @@
   max-width: 2000px;     /* 👈 controls width */
   width: 100%;
   margin: 0 auto;        /* 👈 center it */
+  padding-top: 90px;
 }
 
 .header h1 {
@@ -357,11 +358,8 @@ input:checked + .slider:before {
 }
 
 .chat-header {
-  padding: 16px 24px;
-  background-color: #262626;
   font-size: 1.5rem;
   font-weight: bold;
-  border-bottom: 1px solid #333;
   position: sticky;
   top: 0;
   z-index: 10;
