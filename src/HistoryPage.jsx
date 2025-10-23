@@ -1,39 +1,30 @@
 import React, { useEffect, useState } from 'react';
 
 function HistoryPage({ user }) {
-const [chatHistory, setChatHistory] = useState([]);  // ✅ initialize as empty array
-const [loading, setLoading] = useState(true);
+  const [chatHistory, setChatHistory] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-useEffect(() => {
-  fetch('https://your-api-url')
-    .then(res => res.json())
-    .then(data => {
-      console.log("Chat history response:", data);  // ✅ confirm shape
-      setChatHistory(Array.isArray(data) ? data : []);
-    })
-    .catch(err => console.error("Fetch error", err))
-    .finally(() => setLoading(false));
-}, []);
+  useEffect(() => {
+    if (!user?.attributes?.email) return;
 
-return (
-  <div>
-    {loading ? (
-      <p>Loading history...</p>
-    ) : chatHistory.length > 0 ? (
-      chatHistory.map(chat => (
-        <div key={chat.chat_key}>
-          <strong>{chat.prompt}</strong>
-          <p>{chat.agent_response}</p>
-          <small>{new Date(chat.request_timestamp_utc).toLocaleString()}</small>
-        </div>
-      ))
-    ) : (
-      <p>No chat history found.</p>
-    )}
-  </div>
-);
+    const userEmail = user.attributes.email;
+    const url = `https://fgi3msvj1m.execute-api.eu-central-1.amazonaws.com/dev/get-history?user_email=${encodeURIComponent(userEmail)}`;
 
-    fetchHistory();
+    fetch(url)
+      .then(res => {
+        if (!res.ok) throw new Error("Failed to fetch");
+        return res.json();
+      })
+      .then(data => {
+        console.log("Chat history response:", data);
+        setChatHistory(Array.isArray(data) ? data : []);
+      })
+      .catch(err => {
+        console.error("Fetch error:", err);
+        setError("Failed to load chat history.");
+      })
+      .finally(() => setLoading(false));
   }, [user]);
 
   if (loading) return <div style={{ padding: 20 }}>🔄 Loading chat history...</div>;
