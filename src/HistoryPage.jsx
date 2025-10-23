@@ -17,7 +17,6 @@ function HistoryPage({ user }) {
         return res.json();
       })
       .then(data => {
-        console.log("Chat history response:", data);
         setChatHistory(Array.isArray(data) ? data : []);
       })
       .catch(err => {
@@ -27,33 +26,32 @@ function HistoryPage({ user }) {
       .finally(() => setLoading(false));
   }, [user]);
 
-  if (loading) return <div className="history-page">🔄 Loading chat history...</div>;
-  if (error) return <div className="history-page error">{error}</div>;
+  if (loading) return <div className="chat-history">🔄 Loading chat history...</div>;
+  if (error) return <div className="chat-history error">{error}</div>;
 
   return (
-    <div className="history-page">
-      <header className="history-header">
-        🕑 Chat History
-      </header>
-      <div className="history-scroll-area">
+    <div className="chat-history">
+      <header className="chat-header">🕑 Chat History</header>
+      <div className="chat-scroll-area">
         {chatHistory.length === 0 ? (
           <p>No chat history found for {user?.attributes?.email}.</p>
         ) : (
           chatHistory.map((entry, idx) => (
-            <div
-              key={idx}
-              className="history-entry"
-              style={{
-                marginBottom: '20px',
-                borderBottom: '1px solid #333',
-                paddingBottom: '10px'
-              }}
-            >
-              <div><strong>You:</strong> {entry.prompt}</div>
-              <div><strong>Zelo:</strong> <span dangerouslySetInnerHTML={{ __html: entry.agent_response }} /></div>
-              <div style={{ fontSize: '0.85em', color: '#aaa' }}>
-                {new Date(entry.request_timestamp_utc).toLocaleString()}{" "}
-                {entry.rating === 1 && '👍'}{entry.rating === -1 && '👎'}
+            <div key={idx} className="chat-bubble-wrapper">
+              <div className="chat-bubble user-bubble">
+                <div className="chat-meta">You</div>
+                <div className="chat-text">{entry.prompt}</div>
+              </div>
+              <div className="chat-bubble zelo-bubble">
+                <div className="chat-meta">Zelo</div>
+                <div
+                  className="chat-text"
+                  dangerouslySetInnerHTML={{ __html: entry.agent_response }}
+                />
+                <div className="chat-time">
+                  {new Date(entry.request_timestamp_utc).toLocaleString()}{" "}
+                  {entry.rating === 1 && '👍'} {entry.rating === -1 && '👎'}
+                </div>
               </div>
             </div>
           ))
