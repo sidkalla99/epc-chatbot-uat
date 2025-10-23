@@ -371,6 +371,9 @@ input:checked + .slider:before {
   flex: 1;
   overflow-y: auto;
   padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px; /* Space between turns */
 }
 
 .chat-bubble-wrapper {
@@ -417,9 +420,8 @@ input:checked + .slider:before {
 }
 
 .chat-text table {
-  margin-top: 10px;
-  border-collapse: collapse;
-  width: 100%;
+  word-break: break-word;
+  overflow-x: auto;
 }
 
 .chat-text table, .chat-text th, .chat-text td {
@@ -431,4 +433,10 @@ input:checked + .slider:before {
 .chat-text th {
   background-color: #333;
   color: #fff;
+}
+
+.chat-turn {
+  display: flex;
+  flex-direction: column;
+  gap: 10px; /* Space between user + Zelo */
 }
