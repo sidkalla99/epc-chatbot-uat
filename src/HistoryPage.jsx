@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import { Copy, Check, ThumbsUp, ThumbsDown, Download } from 'lucide-react';
+import * as XLSX from 'xlsx';
 
 function HistoryPage({ user }) {
   const [chatHistory, setChatHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [copiedIndex, setCopiedIndex] = useState(null);
 
   useEffect(() => {
     if (!user?.attributes?.email) return;
@@ -26,38 +29,99 @@ function HistoryPage({ user }) {
       .finally(() => setLoading(false));
   }, [user]);
 
-  if (loading) return <div className="chat-history">🔄 Loading chat history...</div>;
-  if (error) return <div className="chat-history error">{error}</div>;
+  const handleCopy = (text, index) => {
+    navigator.clipboard.writeText(text);
+    setCopiedIndex(index);
+    setTimeout(() => setCopiedIndex(null), 3000);
+  };
+
+  const downloadTableAsCSV = (index) => {
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = chatHistory[index].agent_response;
+
+    const tables = tempDiv.querySelectorAll('table');
+    if (!tables || tables.length === 0) return;
+
+    const wb = XLSX.utils.book_new();
+
+    tables.forEach((table, tableIndex) => {
+      const grid = [];
+      const rows = table.querySelectorAll('tr');
+
+      for (let row of rows) {
+        const cells = [...row.querySelectorAll('th, td')];
+        grid.push(cells.map(cell => cell.textContent.trim()));
+      }
+
+      const ws = XLSX.utils.aoa_to_sheet(grid);
+      XLSX.utils.book_append_sheet(wb, ws, `Table ${tableIndex + 1}`);
+    });
+
+    XLSX.writeFile(wb, `history-table-${index + 1}.xlsx`);
+  };
+
+  if (loading) return <div className="chat-box">🔄 Loading chat history...</div>;
+  if (error) return <div className="chat-box error">{error}</div>;
 
   return (
-    <div className="chat-history">
-      <header className="chat-header">🕑 Chat History</header>
-      <div className="chat-scroll-area">
-        {chatHistory.length === 0 ? (
-          <p>No chat history found for {user?.attributes?.email}.</p>
-        ) : (
-          chatHistory.map((entry, idx) => (
-            <div key={idx} className="chat-turn">
-              <div className="chat-bubble user-bubble">
-                <div className="chat-meta">You</div>
-                <div className="chat-text">{entry.prompt}</div>
+    <div className="chat-box">
+      {chatHistory.length === 0 ? (
+        <p>No chat history found for {user?.attributes?.email}.</p>
+      ) : (
+        chatHistory.map((entry, idx) => {
+          const isTable = entry.agent_response.includes("<table>");
+          const isHello = entry.agent_response.toLowerCase().includes("hello");
+
+          return (
+            <React.Fragment key={idx}>
+              <div className="message user">
+                {entry.prompt}
               </div>
-  
-              <div className="chat-bubble zelo-bubble">
-                <div className="chat-meta">Zelo</div>
-                <div
-                  className="chat-text"
-                  dangerouslySetInnerHTML={{ __html: entry.agent_response }}
-                />
+
+              <div className="message assistant">
+                <div dangerouslySetInnerHTML={{ __html: entry.agent_response }} />
+
+                {!isHello && (
+                  <div className="button-row">
+                    {isTable && (
+                      <div className="tooltip">
+                        <Download
+                          className="action-icon"
+                          onClick={() => downloadTableAsCSV(idx)}
+                        />
+                        <span className="tooltip-text">Download</span>
+                      </div>
+                    )}
+                    <div className="tooltip">
+                      {copiedIndex === idx ? (
+                        <Check className="action-icon active" />
+                      ) : (
+                        <Copy
+                          className="action-icon"
+                          onClick={() => handleCopy(entry.agent_response.replace(/<[^>]*>?/gm, ''), idx)}
+                        />
+                      )}
+                      <span className="tooltip-text">
+                        {copiedIndex === idx ? "Copied!" : "Copy"}
+                      </span>
+                    </div>
+                    {entry.rating === 1 && (
+                      <ThumbsUp className="action-icon active" />
+                    )}
+                    {entry.rating === -1 && (
+                      <ThumbsDown className="action-icon active" />
+                    )}
+                  </div>
+                )}
+
                 <div className="chat-time">
-                  {new Date(entry.request_timestamp_utc).toLocaleString()}{" "}
-                  {entry.rating === 1 && '👍'} {entry.rating === -1 && '👎'}
+                  {new Date(entry.request_timestamp_utc).toLocaleString()}
                 </div>
               </div>
-            </div>
-          ))
-        )}
-      </div>
+            </React.Fragment>
+          );
+        })
+      )}
     </div>
   );
 }
