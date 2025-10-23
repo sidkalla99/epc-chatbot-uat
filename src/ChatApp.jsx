@@ -459,18 +459,18 @@ onChange={() => setDarkMode(!darkMode)}
 </div>
 
 <div className="chat-box">
-{!historyTabActive && (
-  <div className="input-box">
-    <input
-      type="text"
-      value={userInput}
-      onChange={(e) => setUserInput(e.target.value)}
-      onKeyDown={handleKeyDown}
-      placeholder="Type your query here..."
-    />
-    <button onClick={sendMessage}>Send</button>
-  </div>
-)}
+{/* // {!historyTabActive && (
+//   <div className="input-box">
+//     <input
+//       type="text"
+//       value={userInput}
+//       onChange={(e) => setUserInput(e.target.value)}
+//       onKeyDown={handleKeyDown}
+//       placeholder="Type your query here..."
+//     />
+//     <button onClick={sendMessage}>Send</button>
+//   </div>
+// )} */}
 {messages.map((msg, idx) => {
   const isHello = msg.text.toLowerCase().includes("hello");
   const isAssistant = msg.sender === 'Assistant';
