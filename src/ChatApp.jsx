@@ -24,8 +24,8 @@ const [messages, setMessages] = useState([
 const [userInput, setUserInput] = useState('');
 const [darkMode, setDarkMode] = useState(true);
 const [loading, setLoading] = useState(false);
-const [historyTabActive, setHistoryTabActive] = useState(false);
-const [chatHistory, setChatHistory] = useState([]);
+// const [historyTabActive, setHistoryTabActive] = useState(false);
+// const [chatHistory, setChatHistory] = useState([]);
 const handleFeedback = (index, type) => {
   setFeedback(prev => ({ ...prev, [index]: type }));
   console.log(`📊 Feedback for message ${index}:`, type);
@@ -431,7 +431,7 @@ return (
 <div className="chat-container">
 <div className="header">
 <h1>Zelo</h1>
-<button
+{/* <button
   onClick={() => {
     setHistoryTabActive(!historyTabActive);
     if (!historyTabActive) fetchHistory(); // Fetch only on open
@@ -447,7 +447,7 @@ return (
     }}
 >
   {historyTabActive ? "Back to Chat" : "View History"}
-</button>
+</button> */}
 <label className="switch">
 <input
 type="checkbox"
