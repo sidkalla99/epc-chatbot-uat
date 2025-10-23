@@ -9,7 +9,7 @@ function HistoryPage({ user }) {
     const fetchHistory = async () => {
       try {
         const res = await fetch(
-          `https://fgi3msvj1m.execute-api.eu-central-1.amazonaws.com/dev/get-history?user_email=${user?.attributes?.email}`
+          `https://fgi3msvj1m.execute-api.eu-central-1.amazonaws.com/dev/?user_email=${user?.attributes?.email}`
         );
         const result = await res.json();
 
