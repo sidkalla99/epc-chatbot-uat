@@ -37,11 +37,12 @@ function HistoryPage({ user }) {
           <p>No chat history found for {user?.attributes?.email}.</p>
         ) : (
           chatHistory.map((entry, idx) => (
-            <div key={idx} className="chat-bubble-wrapper">
+            <div key={idx} className="chat-turn">
               <div className="chat-bubble user-bubble">
                 <div className="chat-meta">You</div>
                 <div className="chat-text">{entry.prompt}</div>
               </div>
+  
               <div className="chat-bubble zelo-bubble">
                 <div className="chat-meta">Zelo</div>
                 <div
@@ -59,6 +60,6 @@ function HistoryPage({ user }) {
       </div>
     </div>
   );
-}
+
 
 export default HistoryPage;
