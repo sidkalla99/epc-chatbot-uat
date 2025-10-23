@@ -36,6 +36,7 @@
   height: 100vh;
   width: 100vw;
   overflow: hidden;
+  padding-top: 50px
 }
 
 /* === MAIN CHAT CONTAINER === */
@@ -68,7 +69,6 @@
   max-width: 2000px;     /* 👈 controls width */
   width: 100%;
   margin: 0 auto;        /* 👈 center it */
-  padding-top: 90px;
 }
 
 .header h1 {
