@@ -60,6 +60,6 @@ function HistoryPage({ user }) {
       </div>
     </div>
   );
-
+}
 
 export default HistoryPage;
