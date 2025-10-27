@@ -29,7 +29,8 @@ const [loading, setLoading] = useState(false);
 const handleFeedback = (index, type) => {
   setFeedback(prev => ({ ...prev, [index]: type }));
   console.log(`📊 Feedback for message ${index}:`, type);
-
+  console.log("🧠 WebSocket readyState:", wsRef.current?.readyState);
+  
   // ✅ Send feedback only when clicked
   if (wsRef.current?.readyState === 1) {
     const payload = {
