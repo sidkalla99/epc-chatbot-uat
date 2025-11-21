@@ -79,59 +79,10 @@ console.log('✅ WebSocket connected');
 // typeText(payload.answer, () => setLoading(false));
 // };
 
-// ws.onmessage = (evt) => {
-//   try {
-//     const { answer, error, chatKey } = JSON.parse(evt.data); // 👈 also destructure chatKey
-
-//     if (error) {
-//       setMessages(prev => [
-//         ...prev,
-//         { sender: 'Assistant', text: ` ${error}`, finished: true }
-//       ]);
-//       setLoading(false);
-//       return;
-//     }
-
-//     if (!answer) {
-//       console.warn("No answer field:", evt.data);
-//       return;
-//     }
-
-//     //✅ Store chatKey with this Assistant message
-//     setMessages(prev => [
-//       ...prev,
-//       { sender: 'Assistant', text: '', chatKey }  // 👈 include chatKey here
-//     ]);
-
-//     typeText(answer, () => setLoading(false));
-//     console.log("📤 Sending Question Payload:", {
-//       question: userInput,
-//       sessionId: sessionIdRef.current,
-//       userEmail: user?.attributes?.email,
-//       username: user?.attributes?.email.split("@")[0],
-//       timestamp: new Date().toISOString()
-//     });
-
-//     // (Optional) log the assistant response back
-//     wsRef.current.send(
-//       JSON.stringify({
-//         agentResponse: answer,
-//         sessionId: sessionIdRef.current,
-//         userEmail: user?.attributes?.email,
-//         username: user?.attributes?.email.split("@")[0]
-//       })
-//     );
-//   } catch (e) {
-//     console.warn("Non-JSON frame:", evt.data);
-//   }
-// };
-
 ws.onmessage = (evt) => {
   try {
-    const payload = JSON.parse(evt.data);
-    const { answer, error, chatKey, partial, isFinal } = payload;
+    const { answer, error, chatKey } = JSON.parse(evt.data); // 👈 also destructure chatKey
 
-    // 🚫 Handle error frames
     if (error) {
       setMessages(prev => [
         ...prev,
@@ -141,74 +92,123 @@ ws.onmessage = (evt) => {
       return;
     }
 
-    // 🧩 Handle streaming partial updates
-    if (partial) {
-      setMessages(prev => {
-        const updated = [...prev];
-        const last = updated[updated.length - 1];
-
-        // if last message is from Assistant, append new chunk
-        if (last?.sender === 'Assistant') {
-          updated[updated.length - 1] = {
-            ...last,
-            text: (last.text || '') + partial,
-            finished: false
-          };
-        } else {
-          // first partial chunk → create assistant message
-          updated.push({ sender: 'Assistant', text: partial, chatKey, finished: false });
-        }
-        return updated;
-      });
-      return; // don't fall through
-    }
-
-    // 🏁 Handle final streamed message
-    if (isFinal && answer) {
-      setMessages(prev => {
-        const updated = [...prev];
-        const last = updated[updated.length - 1];
-        if (last?.sender === 'Assistant') {
-          updated[updated.length - 1] = {
-            ...last,
-            text: answer,
-            finished: true
-          };
-        } else {
-          updated.push({ sender: 'Assistant', text: answer, chatKey, finished: true });
-        }
-        return updated;
-      });
-      setLoading(false);
+    if (!answer) {
+      console.warn("No answer field:", evt.data);
       return;
     }
 
-    // ✳️ Fallback for non-streaming full answers (old behavior)
-    if (answer) {
-      setMessages(prev => [
-        ...prev,
-        { sender: 'Assistant', text: '', chatKey }
-      ]);
-      typeText(answer, () => setLoading(false));
+    //✅ Store chatKey with this Assistant message
+    setMessages(prev => [
+      ...prev,
+      { sender: 'Assistant', text: '', chatKey }  // 👈 include chatKey here
+    ]);
 
-      // (optional) echo back to log or server
-      wsRef.current.send(
-        JSON.stringify({
-          agentResponse: answer,
-          sessionId: sessionIdRef.current,
-          userEmail: user?.attributes?.email,
-          username: user?.attributes?.email.split("@")[0]
-        })
-      );
-      return;
-    }
+    typeText(answer, () => setLoading(false));
+    console.log("📤 Sending Question Payload:", {
+      question: userInput,
+      sessionId: sessionIdRef.current,
+      userEmail: user?.attributes?.email,
+      username: user?.attributes?.email.split("@")[0],
+      timestamp: new Date().toISOString()
+    });
 
-    console.warn("No recognized fields in message:", evt.data);
-
+    // (Optional) log the assistant response back
+    wsRef.current.send(
+      JSON.stringify({
+        agentResponse: answer,
+        sessionId: sessionIdRef.current,
+        userEmail: user?.attributes?.email,
+        username: user?.attributes?.email.split("@")[0]
+      })
+    );
   } catch (e) {
     console.warn("Non-JSON frame:", evt.data);
   }
 };
+
+// ws.onmessage = (evt) => {
+//   try {
+//     const payload = JSON.parse(evt.data);
+//     const { answer, error, chatKey, partial, isFinal } = payload;
+
+//     // 🚫 Handle error frames
+//     if (error) {
+//       setMessages(prev => [
+//         ...prev,
+//         { sender: 'Assistant', text: ` ${error}`, finished: true }
+//       ]);
+//       setLoading(false);
+//       return;
+//     }
+
+//     // 🧩 Handle streaming partial updates
+//     if (partial) {
+//       setMessages(prev => {
+//         const updated = [...prev];
+//         const last = updated[updated.length - 1];
+
+//         // if last message is from Assistant, append new chunk
+//         if (last?.sender === 'Assistant') {
+//           updated[updated.length - 1] = {
+//             ...last,
+//             text: (last.text || '') + partial,
+//             finished: false
+//           };
+//         } else {
+//           // first partial chunk → create assistant message
+//           updated.push({ sender: 'Assistant', text: partial, chatKey, finished: false });
+//         }
+//         return updated;
+//       });
+//       return; // don't fall through
+//     }
+
+//     // 🏁 Handle final streamed message
+//     if (isFinal && answer) {
+//       setMessages(prev => {
+//         const updated = [...prev];
+//         const last = updated[updated.length - 1];
+//         if (last?.sender === 'Assistant') {
+//           updated[updated.length - 1] = {
+//             ...last,
+//             text: answer,
+//             finished: true
+//           };
+//         } else {
+//           updated.push({ sender: 'Assistant', text: answer, chatKey, finished: true });
+//         }
+//         return updated;
+//       });
+//       setLoading(false);
+//       return;
+//     }
+
+//     // ✳️ Fallback for non-streaming full answers (old behavior)
+//     if (answer) {
+//       setMessages(prev => [
+//         ...prev,
+//         { sender: 'Assistant', text: '', chatKey }
+//       ]);
+//       typeText(answer, () => setLoading(false));
+
+//       // (optional) echo back to log or server
+//       wsRef.current.send(
+//         JSON.stringify({
+//           agentResponse: answer,
+//           sessionId: sessionIdRef.current,
+//           userEmail: user?.attributes?.email,
+//           username: user?.attributes?.email.split("@")[0]
+//         })
+//       );
+//       return;
+//     }
+
+//     console.warn("No recognized fields in message:", evt.data);
+
+//   } catch (e) {
+//     console.warn("Non-JSON frame:", evt.data);
+//   }
+// };
 ws.onclose = () => {
 console.warn("🔌 WebSocket closed, retrying in 3 seconds...");
 reconnectTimer = setTimeout(() => connectWebSocket(), 3000);
