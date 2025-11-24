@@ -8,6 +8,7 @@ function HistoryPage({ user }) {
   const [error, setError] = useState(null);
   const [copiedIndex, setCopiedIndex] = useState(null);
 
+  // Fetch user chat history
   useEffect(() => {
     if (!user?.attributes?.email) return;
 
@@ -15,26 +16,28 @@ function HistoryPage({ user }) {
     const url = `https://fgi3msvj1m.execute-api.eu-central-1.amazonaws.com/dev/get-history?user_email=${encodeURIComponent(userEmail)}`;
 
     fetch(url)
-      .then(res => {
-        if (!res.ok) throw new Error("Failed to fetch");
+      .then((res) => {
+        if (!res.ok) throw new Error('Failed to fetch');
         return res.json();
       })
-      .then(data => {
+      .then((data) => {
         setChatHistory(Array.isArray(data) ? data : []);
       })
-      .catch(err => {
-        console.error("Fetch error:", err);
-        setError("Failed to load chat history.");
+      .catch((err) => {
+        console.error('Fetch error:', err);
+        setError('Failed to load chat history.');
       })
       .finally(() => setLoading(false));
   }, [user]);
 
+  // Copy helper
   const handleCopy = (text, index) => {
     navigator.clipboard.writeText(text);
     setCopiedIndex(index);
     setTimeout(() => setCopiedIndex(null), 3000);
   };
 
+  // Download helper
   const downloadTableAsCSV = (index) => {
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = chatHistory[index].agent_response;
@@ -50,7 +53,7 @@ function HistoryPage({ user }) {
 
       for (let row of rows) {
         const cells = [...row.querySelectorAll('th, td')];
-        grid.push(cells.map(cell => cell.textContent.trim()));
+        grid.push(cells.map((cell) => cell.textContent.trim()));
       }
 
       const ws = XLSX.utils.aoa_to_sheet(grid);
@@ -68,59 +71,77 @@ function HistoryPage({ user }) {
       {chatHistory.length === 0 ? (
         <p>No chat history found for {user?.attributes?.email}.</p>
       ) : (
-        chatHistory.map((entry, idx) => {
-          const isTable = entry.agent_response.includes("<table>");
-          const isHello = entry.agent_response.toLowerCase().includes("hello");
+        chatHistory
+          // ✅ Sort DESCENDING (latest first)
+          .sort(
+            (a, b) =>
+              new Date(b.request_timestamp_utc) -
+              new Date(a.request_timestamp_utc)
+          )
+          .map((entry, idx) => {
+            const isTable = entry.agent_response?.includes('<table>');
+            const isHello = entry.agent_response
+              ?.toLowerCase()
+              ?.includes('hello');
 
-          return (
-            <React.Fragment key={idx}>
-              <div className="message user">
-                {entry.prompt}
-              </div>
+            return (
+              <React.Fragment key={idx}>
+                {/* ✅ Assistant (Zelo) response first */}
+                <div className="message assistant">
+                  <div
+                    dangerouslySetInnerHTML={{
+                      __html: entry.agent_response || '',
+                    }}
+                  />
 
-              <div className="message assistant">
-                <div dangerouslySetInnerHTML={{ __html: entry.agent_response }} />
-
-                {!isHello && (
-                  <div className="button-row">
-                    {isTable && (
-                      <div className="tooltip">
-                        <Download
-                          className="action-icon"
-                          onClick={() => downloadTableAsCSV(idx)}
-                        />
-                        <span className="tooltip-text">Download</span>
-                      </div>
-                    )}
-                    <div className="tooltip">
-                      {copiedIndex === idx ? (
-                        <Check className="action-icon active" />
-                      ) : (
-                        <Copy
-                          className="action-icon"
-                          onClick={() => handleCopy(entry.agent_response.replace(/<[^>]*>?/gm, ''), idx)}
-                        />
+                  {!isHello && (
+                    <div className="button-row">
+                      {isTable && (
+                        <div className="tooltip">
+                          <Download
+                            className="action-icon"
+                            onClick={() => downloadTableAsCSV(idx)}
+                          />
+                          <span className="tooltip-text">Download</span>
+                        </div>
                       )}
-                      <span className="tooltip-text">
-                        {copiedIndex === idx ? "Copied!" : "Copy"}
-                      </span>
+                      <div className="tooltip">
+                        {copiedIndex === idx ? (
+                          <Check className="action-icon active" />
+                        ) : (
+                          <Copy
+                            className="action-icon"
+                            onClick={() =>
+                              handleCopy(
+                                entry.agent_response.replace(/<[^>]*>?/gm, ''),
+                                idx
+                              )
+                            }
+                          />
+                        )}
+                        <span className="tooltip-text">
+                          {copiedIndex === idx ? 'Copied!' : 'Copy'}
+                        </span>
+                      </div>
+                      {entry.rating === 1 && (
+                        <ThumbsUp className="action-icon active" />
+                      )}
+                      {entry.rating === -1 && (
+                        <ThumbsDown className="action-icon active" />
+                      )}
                     </div>
-                    {entry.rating === 1 && (
-                      <ThumbsUp className="action-icon active" />
-                    )}
-                    {entry.rating === -1 && (
-                      <ThumbsDown className="action-icon active" />
-                    )}
-                  </div>
-                )}
+                  )}
 
-                <div className="chat-time">
-                  {new Date(entry.request_timestamp_utc).toLocaleString()}
+                  <div className="chat-time">
+                    {new Date(entry.request_timestamp_utc).toLocaleString()}
+                  </div>
                 </div>
-              </div>
-            </React.Fragment>
-          );
-        })
+
+                {/* ✅ User prompt second */}
+                <div className="message user">{entry.prompt}</div>
+              </React.Fragment>
+            );
+          })
       )}
     </div>
   );
