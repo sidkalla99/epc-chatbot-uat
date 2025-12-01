@@ -601,7 +601,7 @@ onChange={() => setDarkMode(!darkMode)}
               <div className="tooltip">  
               <Download
               className="action-icon"
-              onClick={() => downloadTableAsCSV(idx),handleFeedback(idx, "download");}}
+              onClick={() => downloadTableAsCSV(idx);handleFeedback(idx, "download");}}
             />
               <span className="tooltip-text">Download</span>
             </div>                
