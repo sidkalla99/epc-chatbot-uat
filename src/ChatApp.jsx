@@ -27,7 +27,8 @@ const [loading, setLoading] = useState(false);
 // const [historyTabActive, setHistoryTabActive] = useState(false);
 // const [chatHistory, setChatHistory] = useState([]);
 const handleFeedback = (index, type) => {
-  setFeedback(prev => ({ ...prev, [index]: type }));
+  // setFeedback(prev => ({ ...prev, [index]: type }));
+  setFeedback(prev => ({...prev,[index]: {...prev[index],...(type === "download"? { download: true }: { thumbs: type })}}));
   console.log(`📊 Feedback for message ${index}:`, type);
   console.log("🧠 WebSocket readyState:", wsRef.current?.readyState);
   
@@ -35,7 +36,9 @@ const handleFeedback = (index, type) => {
   if (wsRef.current?.readyState === 1) {
     const payload = {
       chatKey: messages[index].chatKey,
-      feedback: type,                              // "up" or "down"
+      // feedback: type,                              // "up" or "down"
+      thumbs: feedback[index]?.thumbs || null,
+      download: feedback[index]?.download || false,
       responseText: messages[index].text,          // the assistant’s response being rated
       sessionId: sessionIdRef.current,
       userEmail: user?.attributes?.email,
