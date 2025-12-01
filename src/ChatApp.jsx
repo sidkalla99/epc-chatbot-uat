@@ -41,24 +41,40 @@ const handleFeedback = (index, type) => {
   console.log("🧠 WebSocket readyState:", wsRef.current?.readyState);
   
   // ✅ Send feedback only when clicked
+  // if (wsRef.current?.readyState === 1) {
+  //   const payload = {
+  //     chatKey: messages[index].chatKey,
+  //     feedback: type,                              // "up" or "down"
+  //     download: type === "download",
+  //     responseText: messages[index].text,          // the assistant’s response being rated
+  //     sessionId: sessionIdRef.current,
+  //     userEmail: user?.attributes?.email,
+  //     username: user?.attributes?.email.split("@")[0],
+  //     timestamp: new Date().toISOString()
+  //   };
+
+  //   console.log("📤 Sending Feedback Payload:", payload);
+
+  //   wsRef.current.send(JSON.stringify(payload));
+  // }
+// };
+  const payload = {
+    chatKey: messages[index].chatKey,
+    feedback: type,                     // "up", "down", "download"
+    download: type === "download",      // true for download button
+    responseText: messages[index].text,
+    sessionId: sessionIdRef.current,
+    userEmail: user?.attributes?.email,
+    username: user?.attributes?.email.split("@")[0],
+    timestamp: new Date().toISOString()
+  };
+
+  // ⭐ Always send, regardless of feedback state
   if (wsRef.current?.readyState === 1) {
-    const payload = {
-      chatKey: messages[index].chatKey,
-      feedback: type,                              // "up" or "down"
-      download: type === "download",
-      responseText: messages[index].text,          // the assistant’s response being rated
-      sessionId: sessionIdRef.current,
-      userEmail: user?.attributes?.email,
-      username: user?.attributes?.email.split("@")[0],
-      timestamp: new Date().toISOString()
-    };
-
     console.log("📤 Sending Feedback Payload:", payload);
-
     wsRef.current.send(JSON.stringify(payload));
   }
 };
-
 useEffect(() => {
 let ws;
 let reconnectTimer;
