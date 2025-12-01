@@ -37,8 +37,8 @@ const handleFeedback = (index, type) => {
     const payload = {
       chatKey: messages[index].chatKey,
       feedback: type,                              // "up" or "down"
-      //thumbs: feedback[index]?.thumbs || null,
-      download: feedback[index]?.download || null,
+      thumbs: feedback[index]?.thumbs || null,
+      download: type === "download" ? true : feedback[index]?.download || false,
       responseText: messages[index].text,          // the assistant’s response being rated
       sessionId: sessionIdRef.current,
       userEmail: user?.attributes?.email,
