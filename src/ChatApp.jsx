@@ -36,8 +36,8 @@ const handleFeedback = (index, type) => {
   if (wsRef.current?.readyState === 1) {
     const payload = {
       chatKey: messages[index].chatKey,
-      // feedback: type,                              // "up" or "down"
-      thumbs: feedback[index]?.thumbs || null,
+      feedback: type,                              // "up" or "down"
+      //thumbs: feedback[index]?.thumbs || null,
       download: feedback[index]?.download || null,
       responseText: messages[index].text,          // the assistant’s response being rated
       sessionId: sessionIdRef.current,
