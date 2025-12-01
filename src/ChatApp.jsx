@@ -38,7 +38,7 @@ const handleFeedback = (index, type) => {
       chatKey: messages[index].chatKey,
       // feedback: type,                              // "up" or "down"
       thumbs: feedback[index]?.thumbs || null,
-      download: feedback[index]?.download || false,
+      download: feedback[index]?.download || null,
       responseText: messages[index].text,          // the assistant’s response being rated
       sessionId: sessionIdRef.current,
       userEmail: user?.attributes?.email,
