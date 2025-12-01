@@ -61,7 +61,7 @@ const handleFeedback = (index, type) => {
   const payload = {
     chatKey: messages[index].chatKey,
     feedback: type,                     // "up", "down", "download"
-    download: type === "download",      // true for download button
+    download: type === "download" ? 1 : null,     // true for download button
     responseText: messages[index].text,
     sessionId: sessionIdRef.current,
     userEmail: user?.attributes?.email,
