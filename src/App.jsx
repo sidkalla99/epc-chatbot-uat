@@ -55,8 +55,7 @@ export default function App() {
               return (
                 <>
                   <Authenticator.SignUp.FormFields />
-
-                  <label>Business Unit</label>
+                  <label class="amplify-label" for="amplify-id-«ra»">Business Uni</label>
                   <select name="custom:business_unit" required>
                     <option value="">Select Business Unit</option>
                     <option value="Global">Global</option>
