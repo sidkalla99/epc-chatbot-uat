@@ -10,33 +10,28 @@ import awsExports from './aws-exports';
 
 Amplify.configure(awsExports);
 
-// ---------------------------------------------------------
-// SESSION WRAPPER (keeps your existing routing + header UI)
-// ---------------------------------------------------------
 function SessionWrapper({ user, signOut }) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Auto-logout after 1 hour
   useEffect(() => {
     const timeout = setTimeout(() => {
-      alert('🔒 Session expired. You will be logged out.');
+      alert('🔒 Session expired.');
       signOut();
     }, 60 * 60 * 1000);
 
     return () => clearTimeout(timeout);
   }, [signOut]);
 
-  const isHistoryPage = location.pathname === "/history";
+  const isHistory = location.pathname === "/history";
 
   return (
     <div className="app-container">
       <div className="header">
         <h2>Welcome, {user?.attributes?.email}</h2>
-
         <div style={{ display: 'flex', gap: '10px' }}>
-          <button onClick={() => navigate(isHistoryPage ? '/' : '/history')}>
-            {isHistoryPage ? 'New Chat' : 'Chat History'}
+          <button onClick={() => navigate(isHistory ? "/" : "/history")}>
+            {isHistory ? "New Chat" : "Chat History"}
           </button>
           <button onClick={signOut}>Sign Out</button>
         </div>
@@ -50,9 +45,6 @@ function SessionWrapper({ user, signOut }) {
   );
 }
 
-// ---------------------------------------------------------
-// MAIN APP WITH AUTHENTICATOR SIGN-UP OVERRIDE
-// ---------------------------------------------------------
 export default function App() {
   return (
     <div className="auth-wrapper">
@@ -60,29 +52,12 @@ export default function App() {
         components={{
           SignUp: {
             FormFields() {
-              const { validationErrors } = useAuthenticator();
-
               return (
                 <>
-                  {/* Default sign-up fields */}
                   <Authenticator.SignUp.FormFields />
 
-                  {/* -----------------------------
-                      BUSINESS UNIT DROPDOWN FIELD
-                      ----------------------------- */}
-                  <label style={{ marginTop: "10px" }}>Business Unit</label>
-                  <select
-                    name="custom:business_unit"
-                    required
-                    style={{
-                      padding: "10px",
-                      marginTop: "8px",
-                      marginBottom: "16px",
-                      borderRadius: "6px",
-                      border: "1px solid #ccc",
-                      width: "100%"
-                    }}
-                  >
+                  <label>Business Unit</label>
+                  <select name="custom:business_unit" required>
                     <option value="">Select Business Unit</option>
                     <option value="Global">Global</option>
                     <option value="Spain">Spain</option>
@@ -91,19 +66,12 @@ export default function App() {
                     <option value="Latam">Latam</option>
                     <option value="United States">United States</option>
                   </select>
-
-                  {validationErrors?.["custom:business_unit"] && (
-                    <span style={{ color: "red" }}>
-                      {validationErrors["custom:business_unit"]}
-                    </span>
-                  )}
                 </>
               );
             }
           }
         }}
       >
-        {/* Authenticated routes */}
         {({ signOut, user }) => (
           <Router>
             <SessionWrapper signOut={signOut} user={user} />
