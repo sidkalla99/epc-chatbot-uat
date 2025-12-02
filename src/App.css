@@ -421,50 +421,59 @@ input:checked + .slider:before {
 }
 
 /* ===========================
-   SIGNUP/LOGIN PAGE ONLY
+   FIX SIGN-UP / LOGIN STYLES
    =========================== */
 
-/* Center Authenticator */
-.auth-wrapper {
-  height: 100vh;
-  width: 100vw;
+/* Fix Amplify eye icon size */
+.auth-wrapper .amplify-field__show-password {
+  width: 36px !important;
+  height: 36px !important;
+  padding: 0 !important;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #1e1e1e;
+  border-radius: 6px;
 }
 
-/* Amplify Authenticator container */
-.auth-wrapper .amplify-authenticator {
-  max-width: 450px !important;
-  width: 100%;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 0 25px rgba(0, 0, 0, 0.4);
+.auth-wrapper .amplify-field__show-password svg {
+  width: 18px !important;
+  height: 18px !important;
 }
 
-/* Style ONLY input/select fields in Authenticator */
+/* Normalize all input spacing */
+.auth-wrapper .amplify-field-group__control,
 .auth-wrapper .amplify-input,
-.auth-wrapper .amplify-select {
-  width: 100%;
+.auth-wrapper .custom-bu-select {
+  margin-bottom: 12px !important;
+  margin-top: 4px !important;
+}
+
+/* Align widths */
+.auth-wrapper input,
+.auth-wrapper select,
+.auth-wrapper .custom-bu-select {
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Improve label → input spacing */
+.auth-wrapper .amplify-field {
+  margin-bottom: 10px !important;
+}
+
+/* BU dropdown style */
+.auth-wrapper .custom-bu-select {
   padding: 12px;
   border-radius: 8px;
   border: 1px solid #bbb;
-  margin-top: 6px;
-  margin-bottom: 16px;
+  background: white;
+  font-size: 16px;
 }
 
-/* Style ONLY Authenticator buttons */
-.auth-wrapper .amplify-button {
-  width: 100%;
-  background-color: #0071a1;
-  color: white;
-  padding: 12px;
-  border-radius: 8px;
-}
-
-.auth-wrapper .amplify-button:hover {
-  background-color: #008ac7;
+.auth-wrapper .custom-bu-select:focus {
+  outline: none;
+  border-color: #0071a1;
+  box-shadow: 0 0 4px rgba(0, 113, 161, 0.4);
 }
 
 
