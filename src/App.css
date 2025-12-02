@@ -424,6 +424,13 @@ input:checked + .slider:before {
    FIX SIGN-UP / LOGIN STYLES
    =========================== */
 
+.auth-wrapper .amplify-authenticator {
+  margin: auto !important;
+  background: white;
+  border-radius: 12px;
+  padding: 25px 30px;
+}
+
 /* Fix Amplify eye icon size */
 .auth-wrapper .amplify-field__show-password {
   width: 36px !important;
@@ -458,15 +465,18 @@ input:checked + .slider:before {
 
 /* Improve label → input spacing */
 .auth-wrapper .amplify-field {
-  margin-bottom: 10px !important;
+  margin-bottom: 8px !important;
 }
 
 /* BU dropdown style */
 .auth-wrapper .custom-bu-select {
+  margin-top: 6px !important;
+  margin-bottom: 12px !important;  
   padding: 12px;
   border-radius: 8px;
   border: 1px solid #bbb;
-  background: white;
+  background-color: #ffffff !important;
+  color: #000 !important;
   font-size: 16px;
 }
 
@@ -475,5 +485,3 @@ input:checked + .slider:before {
   border-color: #0071a1;
   box-shadow: 0 0 4px rgba(0, 113, 161, 0.4);
 }
-
-
