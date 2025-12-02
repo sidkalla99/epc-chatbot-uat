@@ -1,3 +1,22 @@
+/* Center the Amplify Authenticator in the screen */
+.auth-wrapper {
+  height: 100vh;
+  width:100vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #1e1e1e; /* optional: match your dark mode */
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.amplify-authenticator {
+  max-width: 400px;
+  width: 100%;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+}
+
 /* === APP CONTAINER THEME === */
 .app-container.dark {
   background-color: #121212;
@@ -418,70 +437,4 @@ input:checked + .slider:before {
   display: flex;
   flex-direction: column;
   gap: 10px; /* Space between user + Zelo */
-}
-
-/* ===========================
-   FIX SIGN-UP / LOGIN STYLES
-   =========================== */
-
-.auth-wrapper .amplify-authenticator {
-  margin: auto !important;
-  background: white;
-  border-radius: 12px;
-  padding: 25px 30px;
-}
-
-/* Fix Amplify eye icon size */
-.auth-wrapper .amplify-field__show-password {
-  width: 36px !important;
-  height: 36px !important;
-  padding: 0 !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 6px;
-}
-
-.auth-wrapper .amplify-field__show-password svg {
-  width: 18px !important;
-  height: 18px !important;
-}
-
-/* Normalize all input spacing */
-.auth-wrapper .amplify-field-group__control,
-.auth-wrapper .amplify-input,
-.auth-wrapper .custom-bu-select {
-  margin-bottom: 12px !important;
-  margin-top: 4px !important;
-}
-
-/* Align widths */
-.auth-wrapper input,
-.auth-wrapper select,
-.auth-wrapper .custom-bu-select {
-  width: 100% !important;
-  box-sizing: border-box !important;
-}
-
-/* Improve label → input spacing */
-.auth-wrapper .amplify-field {
-  margin-bottom: 8px !important;
-}
-
-/* BU dropdown style */
-.auth-wrapper .custom-bu-select {
-  margin-top: 6px !important;
-  margin-bottom: 12px !important;  
-  padding: 12px;
-  border-radius: 8px;
-  border: 1px solid #bbb;
-  background-color: #ffffff !important;
-  color: #000 !important;
-  font-size: 16px;
-}
-
-.auth-wrapper .custom-bu-select:focus {
-  outline: none;
-  border-color: #0071a1;
-  box-shadow: 0 0 4px rgba(0, 113, 161, 0.4);
 }
